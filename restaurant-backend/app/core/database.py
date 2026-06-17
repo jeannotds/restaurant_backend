@@ -17,3 +17,12 @@ SessionLocal = sessionmaker(
 )
 
 Base = declarative_base()
+
+# Rôle : ouvre une session DB par requête HTTP, la ferme après — comme injecter un Repository dans NestJS.
+
+def get_db():
+  db = SessionLocal()
+  try:
+    yield db
+  finally:
+    db.close()

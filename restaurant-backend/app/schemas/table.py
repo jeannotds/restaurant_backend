@@ -7,6 +7,7 @@ class TableCreate(BaseModel):
   capacity: int;
   status: str;
   code_acces: str;
+  restaurant_id: UUID;
 
 class TableResponse(BaseModel):
   id: UUID;
@@ -14,6 +15,7 @@ class TableResponse(BaseModel):
   capacity: int;
   status: str;
   code_acces: str;
+  restaurant_id: UUID;
 
   class Config:
     from_attributes = True;

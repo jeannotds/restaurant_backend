@@ -26,11 +26,11 @@ class Table(Base):
   status = Column(
     String(200),
     nullable=False,
-    default="True",
+    default="LIBRE",
   )
 
   code_acces = Column(
-    String(255),
+    String(50),
     nullable=True,
   )
 

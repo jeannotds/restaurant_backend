@@ -7,6 +7,7 @@ app = FastAPI(title="Restaurant API")
 
 app.include_router(restaurant.router)
 
+# Créer les tables de base de données au démarrage¶
 @app.on_event("startup")
 def on_startup():
     # Dev bootstrap: ensure the restaurants table exists.

@@ -15,3 +15,11 @@ router = APIRouter(
 @router.post("/", response_model=TableResponse, status_code=201)
 def create_table(data: TableCreate, db: Session = Depends(get_db)):
   return table_service.create_table(db, data)
+
+@router.get("/", response_model=List[TableResponse], status_code=201)
+def all_table(db: Session = Depends(get_db)):
+  return table_service.get_tables(db)
+
+# @router.get("/{table_id}", response_model=TableResponse, status_code=201)
+# def get_table(table_id: UUID, db: Session = Depends(get_db)):
+#   return table_service.get_table_by_id(db, table_id)

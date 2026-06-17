@@ -15,3 +15,6 @@ def create_table(db: Session, data: TableCreate):
   db.commit()
   db.refresh(table)
   return table
+
+def get_tables(db: Session):
+  return db.query(Table).all()

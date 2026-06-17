@@ -4,7 +4,7 @@ from typing import List
 from uuid import UUID
 
 from app.core.database import get_db
-from app.schemas.table import TableCreate, TableResponse
+from app.schemas.table import TableCreate, TableResponse, TableUpdate
 from app.services import table as table_service
 
 router = APIRouter(
@@ -25,4 +25,11 @@ def get_table(table_id: UUID, db: Session = Depends(get_db)):
   table = table_service.get_table_by_id(db, table_id)
   if not table:
       raise HTTPException(status_code=404, detail="Table introuvable")
+  return table
+
+@router.put("/{table_id}", response_model=TableResponse, status_code=201)
+def update_table(table_id: UUID, data: TableUpdate, db: Session = Depends(get_db)):
+  table = table_service.update_table(db, table_id, data)
+  if not table:
+    raise HTTPException(status_code=404, detail="Table introuvable")
   return table

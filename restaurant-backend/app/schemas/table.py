@@ -17,5 +17,12 @@ class TableResponse(BaseModel):
   code_acces: str;
   restaurant_id: UUID;
 
+class TableUpdate(BaseModel):
+  numero: int;
+  capacity: int;
+  status: str;
+  code_acces: str;
+  restaurant_id: UUID;
+
   class Config:
     from_attributes = True;

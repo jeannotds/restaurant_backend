@@ -1,6 +1,7 @@
 from app.models.category import Category
-from app.schemas.category import CategoryCreate
+from app.schemas.category import CategoryCreate, CategoryUpdate
 from sqlalchemy.orm import Session
+from uuid import UUID
 
 
 def create_category(db: Session, data: CategoryCreate):
@@ -22,3 +23,20 @@ def create_category(db: Session, data: CategoryCreate):
 def get_categories(db: Session):
   categories = db.query(Category).all()
   return categories
+
+def update_category(db: Session, category_id: UUID, data: CategoryUpdate):
+  category = db.query(Category).filter(Category.id == category_id).first()
+
+  if not category:
+    return None
+
+  if data.nom is not None:
+    category.nom = data.nom
+  if data.description is not None:
+    category.description = data.description
+  if data.restaurant_id is not None:
+    category.restaurant_id = data.restaurant_id
+
+  db.commit()
+  db.refresh(category)
+  return category

@@ -18,3 +18,7 @@ def create_category(db: Session, data: CategoryCreate):
     db.commit()
     db.refresh(category)
     return category
+
+def get_categories(db: Session):
+  categories = db.query(Category).all()
+  return categories

@@ -15,9 +15,9 @@ class CategoryResponse(BaseModel):
   restaurant_id: UUID;
 
 class CategoryUpdate(BaseModel):
-  nom: str;
+  nom: Optional[str] = None;
   description: Optional[str] = None;
-  restaurant_id: UUID;
+  restaurant_id: Optional[UUID] = None;
 
   class Config:
     from_attributes = True;

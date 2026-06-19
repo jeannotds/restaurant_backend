@@ -19,11 +19,11 @@ class TableResponse(BaseModel):
   restaurant_id: UUID;
 
 class TableUpdate(BaseModel):
-  numero: int;
-  capacity: int;
-  status: str;
+  numero: Optional[int] = None;
+  capacity: Optional[int] = None;
+  status: Optional[str] = None;
   code_acces: Optional[str] = None;
-  restaurant_id: UUID;
+  restaurant_id: Optional[UUID] = None;
 
   class Config:
     from_attributes = True;

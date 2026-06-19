@@ -27,12 +27,12 @@ class ProduitResponse(BaseModel):
     from_attributes = True;
 
 class ProduitUpdate(BaseModel):
-  nom: str;
+  nom: Optional[str] = None;
   description: Optional[str] = None;
-  price: float;
-  disponible: bool;
-  categorie_id: UUID;
-  restaurant_id: UUID;
+  price: Optional[float] = None;
+  disponible: Optional[bool] = None;
+  categorie_id: Optional[UUID] = None;
+  restaurant_id: Optional[UUID] = None;
   images: Optional[list[str]] = None
 
   class Config:

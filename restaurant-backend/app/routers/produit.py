@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends
+from typing import List
+from uuid import UUID
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.schemas.produit import ProduitCreate, ProduitResponse
+from app.schemas.produit import ProduitCreate, ProduitResponse, ProduitUpdate
 from app.services import produit as produit_service
 
 router = APIRouter(
@@ -14,3 +16,22 @@ router = APIRouter(
 @router.post("/", response_model=ProduitResponse, status_code=201)
 def create_produit(data: ProduitCreate, db: Session = Depends(get_db)):
   return produit_service.create_produit(db, data)
+
+@router.get("/", response_model=List[ProduitResponse], status_code=200)
+def list_produits(db: Session = Depends(get_db)):
+  return produit_service.get_produits(db)
+
+@router.delete("/{id_produit}", status_code=201)
+def delete_produit(id_produit: UUID, db: Session = Depends(get_db)):
+  produit = produit_service.delete_produit(id_produit, db)
+  if not produit:
+    raise HTTPException(status_code = 404, detail="Produit not found")
+  return produit
+
+@router.put("/{id_produit}", response_model=ProduitResponse, status_code=201)
+def update_produit(id_produit: UUID, data: ProduitUpdate, db: Session = Depends(get_db)):
+  produits = produit_service.update_produit(id_produit, db, data)
+
+  if not produits:
+    raise HTTPException(status_code = 404, detail="Produit not found")
+  return produits

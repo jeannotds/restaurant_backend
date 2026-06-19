@@ -56,11 +56,15 @@ class Produit(Base):
   )
 
   create_at = Column(
-    DateTime, default=datetime.now, nullable=False,
+    DateTime, 
+    default=datetime.now, 
+    nullable=False,
   )
 
   update_at = Column(
-    DateTime, default=datetime.now, nullable=False,
+    DateTime, 
+    default=datetime.now, 
+    nullable=False,
   )
 
   

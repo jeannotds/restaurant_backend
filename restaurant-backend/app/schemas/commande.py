@@ -2,6 +2,7 @@ from typing import Optional, List
 from uuid import UUID
 from pydantic import BaseModel
 from app.schemas.produit_image import ProduitImageResponse
+from app.schemas.commande_item import CommandeItemCreate, CommandeItemResponse
 
 
 class CommandeCreate(BaseModel):
@@ -9,6 +10,7 @@ class CommandeCreate(BaseModel):
   numero_commande: int;
   statut: str;
   montant_total: float;
+  items: List[CommandeItemCreate];
 
 class CommandeResponse(BaseModel):
   id: UUID;
@@ -16,7 +18,7 @@ class CommandeResponse(BaseModel):
   numero_commande: int;
   statut: str;
   montant_total: float;
-  
+  items: List[CommandeItemResponse];
   class Config:
     from_attributes = True;
 

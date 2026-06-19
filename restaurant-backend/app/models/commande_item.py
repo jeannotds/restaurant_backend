@@ -3,11 +3,11 @@ from datetime import datetime
 import uuid
 from sqlalchemy import Column, Integer, DateTime, String, Float, ForeignKey
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 from app.core.database import Base
+from sqlalchemy.orm import relationship
 
-class Commande(Base):
-  __tablename__ = "commandes"
+class CommandeItem(Base):
+  __tablename__ = "commande_items"
 
   id = Column(
     UUID(as_uuid=True),
@@ -15,31 +15,37 @@ class Commande(Base):
     default=uuid.uuid4,
   )
 
-  table_id = Column(
+  commande_id = Column(
     UUID(as_uuid=True),
-    ForeignKey("tables.id"),
+    ForeignKey("commandes.id"),
     nullable=False,
   )
 
-  numero_commande = Column(
+  commande = relationship("Commande", back_populates="items")
+
+  produit_id = Column(
+    UUID(as_uuid=True),
+    ForeignKey("produits.id"),
+    nullable=False,
+  )
+
+  quantite = Column(
     Integer,
     nullable=False,
     default=0,
   )
 
-  statut = Column(
-    String(100),
-    nullable=False,
-    default="EN_PREPARATION,",
-  )
-
-  montant_total = Column(
+  prix_unitaire = Column(
     Float,
     nullable=False,
     default=0.0,
   )
 
-  items = relationship("CommandeItem", back_populates="commande")
+  sous_total = Column(
+    Float,
+    nullable=False,
+    default=0.0,
+  )
 
   create_at = Column(
     DateTime,

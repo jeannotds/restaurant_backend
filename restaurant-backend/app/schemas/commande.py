@@ -1,0 +1,30 @@
+from typing import Optional, List
+from uuid import UUID
+from pydantic import BaseModel
+from app.schemas.produit_image import ProduitImageResponse
+
+
+class CommandeCreate(BaseModel):
+  table_id: UUID;
+  numero_commande: int;
+  statut: str;
+  montant_total: float;
+
+class CommandeResponse(BaseModel):
+  id: UUID;
+  table_id: UUID;
+  numero_commande: int;
+  statut: str;
+  montant_total: float;
+  
+  class Config:
+    from_attributes = True;
+
+class CommandeUpdate(BaseModel):
+  table_id: Optional[UUID] = None;
+  numero_commande: Optional[int] = None;
+  statut: Optional[str] = None;
+  montant_total: Optional[float] = None;
+
+  class Config:
+    from_attributes = True;

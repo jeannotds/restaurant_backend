@@ -3,11 +3,11 @@ from datetime import datetime
 import uuid
 from sqlalchemy import Column, Integer, DateTime, String, Float
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Base
 from app.core.database import Base
 
-
 class Commande(Base):
+  __tablename__ = "commandes"
+
   id = Column(
     UUID(as_uuid=True),
     primary_key=True,

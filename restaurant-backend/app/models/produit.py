@@ -4,7 +4,6 @@ from sqlalchemy import Column, String, DateTime, Integer, ForeignKey, Float, Boo
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.core.database import Base
-from app.models.produit_image import ProduitImage
 
 class Produit(Base):
   __tablename__ = "produits"
@@ -41,7 +40,7 @@ class Produit(Base):
     "ProduitImage",
     #  backref="produit", 
     back_populates="produit",
-    cascade="all, delete-orphan"
+    cascade="all, delete-orphan",
   )
 
   restaurant_id = Column(

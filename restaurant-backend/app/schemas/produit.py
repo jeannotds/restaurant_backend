@@ -21,7 +21,6 @@ class ProduitResponse(BaseModel):
   disponible: bool;
   categorie_id: UUID;
   restaurant_id: UUID;
-  # images: Optional[ProduitImageResponse] = []
   images: List[ProduitImageResponse] = []
   
   class Config:

@@ -1,7 +1,8 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronRight, Plus } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
 import type { Restaurant } from "@/lib/types";
 import { PageHeader } from "@/components/ui/Card";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 
 export default function RestaurantsPage() {
+  const router = useRouter();
   const [items, setItems] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -69,14 +71,22 @@ export default function RestaurantsPage() {
                 <th className="px-4 py-3 font-medium">Nom</th>
                 <th className="px-4 py-3 font-medium">Adresse</th>
                 <th className="px-4 py-3 font-medium">Téléphone</th>
+                <th className="px-4 py-3 w-10" aria-hidden />
               </tr>
             </thead>
             <tbody>
               {items.map((r) => (
-                <tr key={r.id} className="border-b border-border last:border-0">
+                <tr
+                  key={r.id}
+                  onClick={() => router.push(`/admin/restaurants/${r.id}`)}
+                  className="cursor-pointer border-b border-border last:border-0 transition-colors hover:bg-background"
+                >
                   <td className="px-4 py-3 font-medium">{r.nom}</td>
                   <td className="px-4 py-3 text-muted">{r.adresse}</td>
                   <td className="px-4 py-3">{r.telephone}</td>
+                  <td className="px-4 py-3 text-muted">
+                    <ChevronRight size={16} />
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.schemas.commande import CommandeCreate, CommandeResponse, CommandeUpdate, CommandeItemCreate
 from app.models.commande import Commande
+from app.models.table import Table
 from app.models.commande_item import CommandeItem
 from app.models.produit import Produit
 
@@ -51,6 +52,13 @@ def create_commande(db: Session, data: CommandeCreate):
 def get_commandes(db: Session):
     return db.query(Commande).all()
 
+# def get_commandes(db: Session, restaurant_id: Optional[UUID] = None):
+#     query = db.query(Commande)
+#     if restaurant_id:
+#         query = query.join(Table).filter(Table.restaurant_id == restaurant_id)
+#     return query.all()
+
+
 def delete_commande(id_commande: UUID, db: Session):
     commande = db.query(Commande).filter(Commande.id == id_commande).first()
     if not commande:
@@ -78,6 +86,14 @@ def update_commande(id_commande: UUID, db: Session, data: CommandeUpdate):
     return commande
 
 def get_commande_by_id(id_commande: UUID, db: Session):
+  commande = db.query(Commande).filter(Commande.id == id_commande).first()
+  if not commande:
+    return None
+  return commande
+
+def get_commande_by_id_and_restaurant(id_commande: UUID, id_restaurant: UUID, db: Session):
+  print("test", id_commande, id_restaurant)
+  # commande = db.query(Commande).filter(Commande.id == id_commande and Commande.restaurant_id == id_restaurant).first()
   commande = db.query(Commande).filter(Commande.id == id_commande).first()
   if not commande:
     return None

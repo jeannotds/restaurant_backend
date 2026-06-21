@@ -1,10 +1,11 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.schemas.commande import CommandeCreate, CommandeResponse, CommandeUpdate
+from app.schemas.commande_item import CommandeItemResponse
 from app.services import commande as commande_service
 
 router = APIRouter(
@@ -41,3 +42,12 @@ def get_commande_by_id(id_commande: UUID, db: Session = Depends(get_db)):
   if not commande:
     raise HTTPException(status_code=404, detail="Commande non trouvée")
   return commande
+
+# @router.get("", response_model=List[CommandeResponse], status_code=201)
+# def get_commande_items(
+#     restaurant_id: Optional[UUID] = Query(None), 
+#     db: Session = Depends(get_db)
+#   ):
+#       print("test", restaurant_id)
+#       print("test", db)
+#       return commande_service.get_commandes(db, restaurant_id)

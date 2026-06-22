@@ -1,7 +1,8 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+from fastapi import Query
 
 from app.core.database import get_db
 from app.schemas.produit import ProduitCreate, ProduitResponse, ProduitUpdate
@@ -18,8 +19,8 @@ def create_produit(data: ProduitCreate, db: Session = Depends(get_db)):
   return produit_service.create_produit(db, data)
 
 @router.get("/", response_model=List[ProduitResponse], status_code=200)
-def list_produits(db: Session = Depends(get_db)):
-  return produit_service.get_produits(db)
+def list_produits(restaurant_id: Optional[UUID] = Query(None), db: Session = Depends(get_db)):
+  return produit_service.get_produits(db, restaurant_id)
 
 @router.delete("/{id_produit}", status_code=201)
 def delete_produit(id_produit: UUID, db: Session = Depends(get_db)):

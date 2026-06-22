@@ -4,7 +4,7 @@ from typing import List
 from uuid import UUID
 
 from app.core.database import get_db
-from app.schemas.restaurant import RestaurantCreate, RestaurantResponse
+from app.schemas.restaurant import RestaurantCreate, RestaurantResponse, RestaurantStatsResponse
 from app.services import restaurant as restaurant_service
 
 router = APIRouter(
@@ -26,3 +26,10 @@ def get_restaurant(restaurant_id: UUID, db: Session = Depends(get_db)):
     if not restaurant:
         raise HTTPException(status_code=404, detail="Restaurant introuvable")
     return restaurant
+
+@router.get("/{restaurant_id}/stats", response_model=RestaurantStatsResponse)
+def get_restaurant_stats(restaurant_id: UUID, db: Session = Depends(get_db)):
+    restaurant_stats =  restaurant_service.get_restaurant_stats(db, restaurant_id)
+    if not restaurant_stats:
+        raise HTTPException(status_code=404, detail="Restaurant introuvable")
+    return restaurant_stats

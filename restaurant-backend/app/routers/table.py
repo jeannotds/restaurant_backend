@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from uuid import UUID
-
+from fastapi import Query
 from app.core.database import get_db
 from app.schemas.table import TableCreate, TableResponse, TableUpdate
 from app.services import table as table_service
@@ -17,8 +17,8 @@ def create_table(data: TableCreate, db: Session = Depends(get_db)):
   return table_service.create_table(db, data)
 
 @router.get("/", response_model=List[TableResponse], status_code=201)
-def all_table(db: Session = Depends(get_db)):
-  return table_service.get_tables(db)
+def all_table(restaurant_id: Optional[UUID] = Query(None), db: Session = Depends(get_db)):
+  return table_service.get_tables(db, restaurant_id)
 
 @router.get("/{table_id}", response_model=TableResponse, status_code=201)
 def get_table(table_id: UUID, db: Session = Depends(get_db)):

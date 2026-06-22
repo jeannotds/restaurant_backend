@@ -17,6 +17,18 @@ class RestaurantUpdate(BaseModel):
     telephone: Optional[str] = None
 
 
+class RestaurantStatsResponse(BaseModel):
+    tables_total: int
+    tables_occupees: int
+    places_total: int
+    places_occupees: int
+    places_libres: int
+    commandes_actives: int
+    produits_total: int
+    produits_disponibles: int
+    places_reservées: int
+    produits_non_disponibles: int
+
 class RestaurantResponse(BaseModel):
 
     id: UUID

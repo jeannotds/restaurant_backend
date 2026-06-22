@@ -1,10 +1,11 @@
-from typing import List
+from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.schemas.category import CategoryCreate, CategoryResponse, CategoryUpdate
 from app.services import category as category_service
 from app.core.database import get_db
+from fastapi import Query
 
 router = APIRouter(
     prefix="/categories",
@@ -18,8 +19,8 @@ def create_category(data: CategoryCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=List[CategoryResponse], status_code=201)
-def get_category(db: Session = Depends(get_db)):
-    return category_service.get_categories(db)
+def get_category(restaurant_id: Optional[UUID] = Query(None), db: Session = Depends(get_db)):
+    return category_service.get_categories(db, restaurant_id)
 
 
 @router.put("/{category_id}", response_model=CategoryResponse, status_code=201)

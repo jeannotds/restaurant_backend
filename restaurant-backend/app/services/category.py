@@ -1,3 +1,4 @@
+from typing import Optional
 from app.models.category import Category
 from app.schemas.category import CategoryCreate, CategoryUpdate
 from sqlalchemy.orm import Session
@@ -20,9 +21,11 @@ def create_category(db: Session, data: CategoryCreate):
     db.refresh(category)
     return category
 
-def get_categories(db: Session):
-  categories = db.query(Category).all()
-  return categories
+def get_categories(db: Session, restaurant_id: Optional[UUID] = None):
+  query = db.query(Category)
+  if restaurant_id:
+    query = query.filter(Category.restaurant_id == restaurant_id)
+  return query.all()
 
 def update_category(db: Session, category_id: UUID, data: CategoryUpdate):
   category = db.query(Category).filter(Category.id == category_id).first()

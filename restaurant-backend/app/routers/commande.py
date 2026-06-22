@@ -17,9 +17,16 @@ router = APIRouter(
 def create_commande(data: CommandeCreate, db: Session = Depends(get_db)):
     return commande_service.create_commande(db, data)
 
-@router.get("/", response_model=List[CommandeResponse])
-def list_commandes(db: Session = Depends(get_db)):
-    return commande_service.get_commandes(db)
+# @router.get("/", response_model=List[CommandeResponse])
+# def list_commandes(db: Session = Depends(get_db)):
+#     return commande_service.get_commandes(db)
+
+@router.get("/", response_model=List[CommandeResponse], status_code=201)
+def get_commande_items(
+    restaurant_id: Optional[UUID] = Query(None), 
+    db: Session = Depends(get_db)
+  ):
+      return commande_service.get_commandes(db, restaurant_id)
 
 @router.delete("/{id_commande}", status_code=201)
 def delete_commande(id_commande: UUID, db: Session = Depends(get_db)):
@@ -42,12 +49,3 @@ def get_commande_by_id(id_commande: UUID, db: Session = Depends(get_db)):
   if not commande:
     raise HTTPException(status_code=404, detail="Commande non trouvée")
   return commande
-
-# @router.get("", response_model=List[CommandeResponse], status_code=201)
-# def get_commande_items(
-#     restaurant_id: Optional[UUID] = Query(None), 
-#     db: Session = Depends(get_db)
-#   ):
-#       print("test", restaurant_id)
-#       print("test", db)
-#       return commande_service.get_commandes(db, restaurant_id)

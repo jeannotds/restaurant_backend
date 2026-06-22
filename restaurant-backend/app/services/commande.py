@@ -49,14 +49,15 @@ def create_commande(db: Session, data: CommandeCreate):
     db.refresh(commande)
     return commande
 
-def get_commandes(db: Session):
-    return db.query(Commande).all()
+# def get_commandes(db: Session):
+#     return db.query(Commande).all()
 
-# def get_commandes(db: Session, restaurant_id: Optional[UUID] = None):
-#     query = db.query(Commande)
-#     if restaurant_id:
-#         query = query.join(Table).filter(Table.restaurant_id == restaurant_id)
-#     return query.all()
+def get_commandes(db: Session, restaurant_id: Optional[UUID] = None):
+    # query = db.query(Commande).join(Table).filter(Table.restaurant_id == restaurant_id)
+    query = db.query(Commande)
+    if restaurant_id:
+        query = query.join(Table).filter(Table.restaurant_id == restaurant_id)
+    return query.all()
 
 
 def delete_commande(id_commande: UUID, db: Session):

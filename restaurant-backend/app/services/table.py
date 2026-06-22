@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlalchemy.orm import Session
 from app.models.table import Table
 from app.schemas.table import TableCreate, TableResponse, TableUpdate
@@ -17,8 +18,14 @@ def create_table(db: Session, data: TableCreate):
   db.refresh(table)
   return table
 
-def get_tables(db: Session):
-  return db.query(Table).all()
+# def get_tables(db: Session):
+#   return db.query(Table).all()
+
+def get_tables(db: Session, restaurant_id: Optional[UUID] = None):
+    query = db.query(Table)
+    if restaurant_id:
+        query = query.filter(Table.restaurant_id == restaurant_id)
+    return query.all()
 
 def get_table_by_id(db: Session, table_id: UUID):
   return db.query(Table).filter(Table.id == table_id).first()
@@ -44,3 +51,6 @@ def update_table(db: Session, table_id: UUID, data: TableUpdate):
   db.commit()
   db.refresh(table)
   return table
+
+def get_all_tables_by_restaurant(db: Session, restaurant_id: UUID):
+  return db.query(Table).filter(Table.restaurant_id == restaurant_id).all()

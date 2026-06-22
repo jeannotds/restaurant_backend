@@ -1,5 +1,7 @@
 from ast import Delete
 from datetime import datetime
+from typing import Optional
+from uuid import UUID
 from app.models.produit import Produit
 from app.models.produit_image import ProduitImage
 from app.schemas.produit import ProduitCreate, ProduitUpdate
@@ -31,8 +33,12 @@ def create_produit(db: Session, data: ProduitCreate):
 
   return produit
 
-def get_produits(db: Session):
-  return db.query(Produit).all()
+def get_produits(db: Session, restaurant_id: Optional[UUID] = None):
+  # return db.query(Produit).all()
+  query = db.query(Produit)
+  if restaurant_id:
+    query = query.filter(Produit.restaurant_id == restaurant_id)
+  return query.all()
 
 def delete_produit(produit_id, db: Session):
   produit = db.query(Produit).filter(Produit.id == produit_id).first()

@@ -96,17 +96,43 @@ def update_produit(produit_id, db: Session, data: ProduitUpdate):
   
   produit.update_at = datetime.now()
 
-  if data.images is not None:
-    old_images = db.query(ProduitImage).filter(ProduitImage.produit_id == produit_id).all()
-    for img in old_images:
-      if img.public_id:
-        delete_image(img.public_id)
-    db.query(ProduitImage).filter(ProduitImage.produit_id == produit_id).delete()
+  # if data.images is not None:
+  #   old_images = db.query(ProduitImage).filter(ProduitImage.produit_id == produit_id).all()
+  #   for img in old_images:
+  #     if img.public_id:
+  #       delete_image(img.public_id)
+  #   db.query(ProduitImage).filter(ProduitImage.produit_id == produit_id).delete()
 
-    for img in data.images:
-      image = ProduitImage(produit_id=produit_id, url_image=img)
-      db.add(image)
+  #   for img in data.images:
+  #     image = ProduitImage(produit_id=produit_id, url_image=img)
+  #     db.add(image)
 
   db.commit()
   db.refresh(produit)
   return produit
+
+def update_image_to_produit(db: Session, produit_id: UUID, file: UploadFile, image_id: UUID, public_id: Optional[str] = None):
+  # 1. Trouver l'image liée au produit
+  image = db.query(ProduitImage).filter(
+    ProduitImage.id == image_id,
+    ProduitImage.produit_id == produit_id,
+  ).first()
+
+  if not image:
+    return None
+
+  # 2. Supprimer l'ancienne image sur Cloudinary (im2)
+  cloud_public_id = image.public_id or public_id
+  if cloud_public_id:
+    delete_image(cloud_public_id)
+
+  # 3. Upload la nouvelle image (im3)
+  uploaded = upload_image(file, folder="restaurant/produits")
+
+  # 4. Mettre à jour la même ligne en BDD (même image_id → im2 devient im3)
+  image.url_image = uploaded["url"]
+  image.public_id = uploaded["public_id"]
+  image.update_at = datetime.now()
+  db.commit()
+  db.refresh(image)
+  return image

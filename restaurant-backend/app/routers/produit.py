@@ -1,8 +1,8 @@
-from typing import List, Optional
+from typing import Annotated, List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
-from fastapi import Query
+from fastapi import Query, Form
 
 from app.core.database import get_db
 from app.schemas.produit import ProduitCreate, ProduitResponse, ProduitUpdate
@@ -28,7 +28,6 @@ async def upload_produit_image(
   id_produit: UUID,
   file: UploadFile = File(...),
   db: Session = Depends(get_db),
-  
 ):
   print("upload_produit_image : ", file)
   image = produit_service.add_image_to_produit(db, id_produit, file)
@@ -51,15 +50,16 @@ def update_produit(id_produit: UUID, data: ProduitUpdate, db: Session = Depends(
     raise HTTPException(status_code = 404, detail="Produit not found")
   return produits
 
-# @router.put("/{id_produit}/images/{id_image}", response_model=ProduitImageResponse, status_code=201)
-# async def upload_produit_image(
-#   id_produit: UUID,
-#   file: UploadFile = File(...),
-#   db: Session = Depends(get_db),
-#   id_image: UUID,
-# ):
-#   print("upload_produit_image : ", file)
-#   image = produit_service.add_image_to_produit(db, id_produit, file)
-#   if not image:
-#     raise HTTPException(status_code=404, detail="Produit introuvable")
-#   return image
+@router.put("/{id_produit}/images/{image_id}", response_model=ProduitImageResponse, status_code=201)
+async def upload_produit_image(
+  id_produit: UUID,
+  image_id: UUID,
+  file: UploadFile = File(...),
+  db: Session = Depends(get_db),
+  public_id: Annotated[Optional[str], Form()] = None,
+):
+  print("upload_produit_image : ", file)
+  image = produit_service.update_image_to_produit(db, id_produit, file, image_id, public_id)
+  if not image:
+    raise HTTPException(status_code=404, detail="mage ou produit introuvable")
+  return image

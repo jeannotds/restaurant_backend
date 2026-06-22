@@ -92,16 +92,16 @@ export function MenuView({
           return (
             <div
               key={produit.id}
-              className="flex gap-3 rounded-xl border border-border bg-surface p-3"
+              className="flex flex-col gap-3 rounded-xl border border-border bg-surface p-3 sm:flex-row"
             >
               {imageUrl ? (
                 <img
                   src={imageUrl}
                   alt={produit.nom}
-                  className="h-20 w-20 shrink-0 rounded-lg object-cover"
+                  className="h-36 w-full shrink-0 rounded-lg object-cover sm:h-20 sm:w-20"
                 />
               ) : (
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-background text-2xl">
+                <div className="flex h-28 w-full shrink-0 items-center justify-center rounded-lg bg-background text-2xl sm:h-20 sm:w-20">
                   🍽️
                 </div>
               )}

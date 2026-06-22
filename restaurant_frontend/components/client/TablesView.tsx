@@ -90,7 +90,7 @@ function TableGroup({
         <h3 className="font-semibold text-secondary">{title}</h3>
         <span className="text-xs text-muted">{hint}</span>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
         {tables.map((table) => (
           <button
             key={table.id}

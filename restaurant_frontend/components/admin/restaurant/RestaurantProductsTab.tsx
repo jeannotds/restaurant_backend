@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 import { Badge, statusTone } from "@/components/ui/Badge";
+import { TableContainer } from "@/components/ui/TableContainer";
 
 type FormState = {
   nom: string;
@@ -136,8 +137,8 @@ export function RestaurantProductsTab({
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
-        <Button onClick={openCreate} disabled={categories.length === 0}>
+      <div className="mb-4 flex sm:justify-end">
+        <Button onClick={openCreate} disabled={categories.length === 0} className="w-full sm:w-auto">
           <Plus size={16} /> Nouveau produit
         </Button>
       </div>
@@ -158,67 +159,121 @@ export function RestaurantProductsTab({
           )}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-surface">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-border bg-background">
-              <tr>
-                <th className="px-4 py-3 font-medium">Produit</th>
-                <th className="px-4 py-3 font-medium">Catégorie</th>
-                <th className="px-4 py-3 font-medium">Prix</th>
-                <th className="px-4 py-3 font-medium">Statut</th>
-                <th className="px-4 py-3 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((prod) => (
-                <tr key={prod.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      {prod.images[0] ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={prod.images[0].url_image}
-                          alt={prod.nom}
-                          className="h-10 w-10 rounded-lg object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-background text-xs text-muted">
-                          N/A
-                        </div>
-                      )}
-                      <span className="font-medium">{prod.nom}</span>
+        <>
+          <div className="space-y-3 md:hidden">
+            {items.map((prod) => (
+              <div
+                key={prod.id}
+                className="rounded-xl border border-border bg-surface p-4"
+              >
+                <div className="flex gap-3">
+                  {prod.images[0] ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={prod.images[0].url_image}
+                      alt={prod.nom}
+                      className="h-14 w-14 shrink-0 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-background text-xs text-muted">
+                      N/A
                     </div>
-                  </td>
-                  <td className="px-4 py-3 text-muted">
-                    {categoryName(prod.categorie_id)}
-                  </td>
-                  <td className="px-4 py-3 font-medium text-primary">
-                    {formatPrice(prod.price)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge tone={statusTone(String(prod.disponible))}>
-                      {prod.disponible ? "Disponible" : "Indisponible"}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => openEdit(prod)}>
-                        <Pencil size={14} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(prod.id)}
-                      >
-                        <Trash2 size={14} className="text-danger" />
-                      </Button>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-medium text-secondary">{prod.nom}</p>
+                      <p className="shrink-0 font-semibold text-primary">
+                        {formatPrice(prod.price)}
+                      </p>
                     </div>
-                  </td>
+                    <p className="text-sm text-muted">
+                      {categoryName(prod.categorie_id)}
+                    </p>
+                    <div className="mt-2 flex items-center justify-between">
+                      <Badge tone={statusTone(String(prod.disponible))}>
+                        {prod.disponible ? "Disponible" : "Indisponible"}
+                      </Badge>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => openEdit(prod)}>
+                          <Pencil size={14} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(prod.id)}
+                        >
+                          <Trash2 size={14} className="text-danger" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block">
+            <TableContainer minWidth="720px">
+              <thead className="border-b border-border bg-background">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Produit</th>
+                  <th className="px-4 py-3 font-medium">Catégorie</th>
+                  <th className="px-4 py-3 font-medium">Prix</th>
+                  <th className="px-4 py-3 font-medium">Statut</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {items.map((prod) => (
+                  <tr key={prod.id} className="border-b border-border last:border-0">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        {prod.images[0] ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={prod.images[0].url_image}
+                            alt={prod.nom}
+                            className="h-10 w-10 rounded-lg object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-background text-xs text-muted">
+                            N/A
+                          </div>
+                        )}
+                        <span className="font-medium">{prod.nom}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-muted">
+                      {categoryName(prod.categorie_id)}
+                    </td>
+                    <td className="px-4 py-3 font-medium text-primary">
+                      {formatPrice(prod.price)}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge tone={statusTone(String(prod.disponible))}>
+                        {prod.disponible ? "Disponible" : "Indisponible"}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => openEdit(prod)}>
+                          <Pencil size={14} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(prod.id)}
+                        >
+                          <Trash2 size={14} className="text-danger" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </TableContainer>
+          </div>
+        </>
       )}
 
       <Modal

@@ -146,7 +146,7 @@ export default function RestaurantClientPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-24 sm:pb-20">
       <ClientHeader
         title={restaurant.nom}
         subtitle={
@@ -158,7 +158,7 @@ export default function RestaurantClientPage() {
       />
 
       <main className="mx-auto max-w-3xl px-4 py-4">
-        <div className="mb-4 flex flex-wrap gap-3 text-sm text-muted">
+        <div className="mb-4 flex flex-col gap-2 text-sm text-muted sm:flex-row sm:flex-wrap sm:gap-3">
           <span className="flex items-center gap-1">
             <MapPin size={14} />
             {restaurant.adresse}
@@ -170,7 +170,7 @@ export default function RestaurantClientPage() {
         </div>
 
         {stats && (
-          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="mb-6 grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
             <StatCard
               label="Tables libres"
               value={stats.tables_total - stats.tables_occupees}

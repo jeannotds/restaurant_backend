@@ -93,34 +93,38 @@ export function CartPanel({
           {cart.map((item) => (
             <div
               key={item.produit.id}
-              className="flex items-center gap-3 rounded-xl border border-border bg-surface p-3"
+              className="rounded-xl border border-border bg-surface p-3"
             >
-              <div className="min-w-0 flex-1">
-                <p className="font-medium text-secondary">{item.produit.nom}</p>
-                <p className="text-sm text-muted">
-                  {formatPrice(item.produit.price)} × {item.quantite}
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-secondary">{item.produit.nom}</p>
+                  <p className="text-sm text-muted">
+                    {formatPrice(item.produit.price)} × {item.quantite}
+                  </p>
+                </div>
+                <p className="shrink-0 font-semibold text-secondary">
+                  {formatPrice(item.produit.price * item.quantite)}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onRemove(item.produit.id)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-border"
-                >
-                  <Minus size={14} />
-                </button>
-                <span className="w-6 text-center text-sm font-medium">
-                  {item.quantite}
-                </span>
-                <button
-                  onClick={() => onAdd(item.produit.id)}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-white"
-                >
-                  <Plus size={14} />
-                </button>
+              <div className="mt-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => onRemove(item.produit.id)}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-border"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="w-6 text-center text-sm font-medium">
+                    {item.quantite}
+                  </span>
+                  <button
+                    onClick={() => onAdd(item.produit.id)}
+                    className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
               </div>
-              <p className="w-20 text-right font-semibold text-secondary">
-                {formatPrice(item.produit.price * item.quantite)}
-              </p>
             </div>
           ))}
 
@@ -133,14 +137,14 @@ export function CartPanel({
 
           {error && <p className="text-sm text-danger">{error}</p>}
 
-          <div className="flex gap-2">
-            <Button variant="ghost" onClick={onClear} className="flex-1">
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button variant="ghost" onClick={onClear} className="sm:flex-1">
               <Trash2 size={16} /> Vider
             </Button>
             <Button
               onClick={handleSubmit}
               disabled={submitting}
-              className="flex-[2]"
+              className="sm:flex-[2]"
             >
               {submitting ? "Envoi..." : "Commander"}
             </Button>

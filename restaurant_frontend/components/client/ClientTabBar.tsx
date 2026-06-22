@@ -22,19 +22,20 @@ export function ClientTabBar({
   cartCount: number;
 }) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-surface/95 backdrop-blur">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-surface/95 backdrop-blur safe-bottom">
       <div className="mx-auto flex max-w-3xl">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
             onClick={() => onChange(id)}
             className={cn(
-              "relative flex flex-1 flex-col items-center gap-0.5 py-2.5 text-xs font-medium transition",
+              "relative flex flex-1 flex-col items-center gap-0.5 px-1 py-2 text-[10px] font-medium transition sm:py-2.5 sm:text-xs",
               active === id ? "text-primary" : "text-muted hover:text-foreground",
             )}
           >
-            <Icon size={20} />
-            {label}
+            <Icon size={18} className="sm:hidden" />
+            <Icon size={20} className="hidden sm:block" />
+            <span className="max-w-full truncate">{label}</span>
             {id === "order" && cartCount > 0 && (
               <span className="absolute right-1/4 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] text-white">
                 {cartCount}

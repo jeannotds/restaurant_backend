@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
+import { TableContainer } from "@/components/ui/TableContainer";
 
 export default function CategoriesPage() {
   const [items, setItems] = useState<Category[]>([]);
@@ -94,32 +95,55 @@ export default function CategoriesPage() {
       {loading ? (
         <p className="text-muted">Chargement...</p>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-surface">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-border bg-background">
-              <tr>
-                <th className="px-4 py-3 font-medium">Nom</th>
-                <th className="px-4 py-3 font-medium">Description</th>
-                <th className="px-4 py-3 font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((cat) => (
-                <tr key={cat.id} className="border-b border-border last:border-0">
-                  <td className="px-4 py-3 font-medium">{cat.nom}</td>
-                  <td className="px-4 py-3 text-muted">
-                    {cat.description ?? "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(cat)}>
-                      <Pencil size={14} /> Modifier
-                    </Button>
-                  </td>
+        <>
+          <div className="space-y-3 md:hidden">
+            {items.map((cat) => (
+              <div
+                key={cat.id}
+                className="rounded-xl border border-border bg-surface p-4"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="font-medium text-secondary">{cat.nom}</p>
+                    <p className="mt-1 text-sm text-muted">
+                      {cat.description ?? "—"}
+                    </p>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(cat)}>
+                    <Pencil size={14} />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block">
+            <TableContainer>
+              <thead className="border-b border-border bg-background">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Nom</th>
+                  <th className="px-4 py-3 font-medium">Description</th>
+                  <th className="px-4 py-3 font-medium">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {items.map((cat) => (
+                  <tr key={cat.id} className="border-b border-border last:border-0">
+                    <td className="px-4 py-3 font-medium">{cat.nom}</td>
+                    <td className="px-4 py-3 text-muted">
+                      {cat.description ?? "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(cat)}>
+                        <Pencil size={14} /> Modifier
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </TableContainer>
+          </div>
+        </>
       )}
 
       <Modal

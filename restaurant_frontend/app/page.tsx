@@ -26,7 +26,7 @@ export default function HomePage() {
         subtitle="Choisissez votre restaurant"
       />
 
-      <main className="mx-auto max-w-3xl px-4 py-6">
+      <main className="mx-auto max-w-3xl px-3 py-5 sm:px-4 sm:py-6">
         <div className="mb-6">
           <h2 className="text-xl font-bold text-secondary">
             Où souhaitez-vous commander ?

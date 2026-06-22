@@ -103,8 +103,8 @@ export function RestaurantTablesTab({
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
-        <Button onClick={openCreate}>
+      <div className="mb-4 flex sm:justify-end">
+        <Button onClick={openCreate} className="w-full sm:w-auto">
           <Plus size={16} /> Nouvelle table
         </Button>
       </div>
@@ -156,7 +156,7 @@ export function RestaurantTablesTab({
         onClose={() => setOpen(false)}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input
               label="Numéro"
               type="number"

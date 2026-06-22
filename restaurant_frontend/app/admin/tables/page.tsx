@@ -170,7 +170,7 @@ export default function TablesPage() {
               label: r.nom,
             }))}
           />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <Input
               label="Numéro"
               type="number"
@@ -198,7 +198,7 @@ export default function TablesPage() {
             onChange={(e) => setForm({ ...form, code_acces: e.target.value })}
           />
           {error && <p className="text-sm text-danger">{error}</p>}
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Annuler
             </Button>

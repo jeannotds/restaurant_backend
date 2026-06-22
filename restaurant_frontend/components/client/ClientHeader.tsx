@@ -12,7 +12,7 @@ export function ClientHeader({
 }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
-      <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-4">
+      <div className="mx-auto flex max-w-3xl items-center gap-2 px-3 py-3 sm:gap-3 sm:px-4 sm:py-4">
         {backHref ? (
           <Link
             href={backHref}
@@ -34,7 +34,7 @@ export function ClientHeader({
         </div>
         <Link
           href="/admin"
-          className="shrink-0 text-xs text-muted underline-offset-2 hover:text-foreground hover:underline"
+          className="hidden shrink-0 text-xs text-muted underline-offset-2 hover:text-foreground hover:underline sm:inline"
         >
           Admin
         </Link>

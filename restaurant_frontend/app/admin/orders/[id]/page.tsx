@@ -89,16 +89,16 @@ export default function OrderDetailPage() {
         <ArrowLeft size={16} /> Retour aux commandes
       </Link>
 
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-secondary">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold text-secondary sm:text-2xl">
             {formatCommandeNumber(commande.numero_commande)}
           </h1>
           <p className="mt-1 text-sm text-muted">
             Table ID : {commande.table_id.slice(0, 8)}...
           </p>
         </div>
-        <Badge tone={statusTone(commande.statut)} className="text-sm">
+        <Badge tone={statusTone(commande.statut)} className="w-fit text-sm">
           {commande.statut}
         </Badge>
       </div>
@@ -110,7 +110,7 @@ export default function OrderDetailPage() {
             {commande.items.map((item) => (
               <div
                 key={item.id}
-                className="flex items-center justify-between rounded-lg border border-border px-4 py-3"
+                className="flex flex-col gap-2 rounded-lg border border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
               >
                 <div>
                   <p className="font-medium">{produitName(item.produit_id)}</p>

@@ -81,7 +81,7 @@ export default function AdminDashboard() {
                 <Link
                   key={cmd.id}
                   href={`/admin/orders/${cmd.id}`}
-                  className="flex items-center justify-between rounded-lg border border-border px-3 py-2 hover:bg-background"
+                  className="flex flex-col gap-2 rounded-lg border border-border px-3 py-2 hover:bg-background sm:flex-row sm:items-center sm:justify-between"
                 >
                   <div>
                     <p className="font-medium">

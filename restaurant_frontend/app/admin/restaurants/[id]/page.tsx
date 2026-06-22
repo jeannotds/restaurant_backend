@@ -78,12 +78,15 @@ export default function RestaurantDetailPage() {
         <ArrowLeft size={16} /> Retour aux restaurants
       </Link>
 
-      <div className="mb-6 flex items-start gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-          <Store size={28} />
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary sm:h-14 sm:w-14">
+          <Store size={24} className="sm:hidden" />
+          <Store size={28} className="hidden sm:block" />
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-secondary">{restaurant.nom}</h1>
+        <div className="min-w-0">
+          <h1 className="text-xl font-bold text-secondary sm:text-2xl">
+            {restaurant.nom}
+          </h1>
           <p className="mt-1 text-sm text-muted">
             Fiche établissement — informations générales
           </p>
@@ -142,14 +145,14 @@ export default function RestaurantDetailPage() {
       )}
 
       <div className="mb-6 border-b border-border">
-        <nav className="-mb-px flex flex-wrap gap-1">
+        <nav className="-mb-px flex gap-1 overflow-x-auto pb-px">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "border-b-2 px-4 py-2.5 text-sm font-medium transition-colors",
+                "shrink-0 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors sm:px-4",
                 activeTab === tab.id
                   ? "border-primary text-primary"
                   : "border-transparent text-muted hover:text-foreground",

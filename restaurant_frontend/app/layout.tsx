@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Restaurant QR — Backoffice",
-  description: "Système de gestion restaurant",
+  title: "Restaurant QR",
+  description: "Commandez depuis votre table — menu, tables et commandes",
 };
 
 export default function RootLayout({

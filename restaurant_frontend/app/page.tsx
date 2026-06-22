@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { api } from "@/lib/api";
+import { api, ApiError } from "@/lib/api";
 import type { Restaurant } from "@/lib/types";
 import { ClientHeader } from "@/components/client/ClientHeader";
 import { RestaurantCard } from "@/components/client/RestaurantCard";
@@ -15,7 +15,13 @@ export default function HomePage() {
     api
       .get<Restaurant[]>("/restaurants/")
       .then(setRestaurants)
-      .catch(() => setError("Impossible de charger les restaurants."))
+      .catch((err) =>
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : "Impossible de charger les restaurants.",
+        ),
+      )
       .finally(() => setLoading(false));
   }, []);
 

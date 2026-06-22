@@ -1,4 +1,27 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
+const REQUEST_TIMEOUT_MS = 20_000;
+
+function isLocalhostUrl(url: string): boolean {
+  return /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?\/?$/i.test(url);
+}
+
+function resolveApiUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  const backendUrl = process.env.BACKEND_URL ?? "http://127.0.0.1:8000";
+
+  if (typeof window !== "undefined") {
+    const onRemoteHost =
+      window.location.hostname !== "localhost" &&
+      window.location.hostname !== "127.0.0.1";
+
+    // Sur mobile (IP locale), ignorer un NEXT_PUBLIC_API_URL pointant vers localhost
+    if (envUrl && !(onRemoteHost && isLocalhostUrl(envUrl))) {
+      return envUrl;
+    }
+    return "/api";
+  }
+
+  return envUrl ?? backendUrl;
+}
 
 class ApiError extends Error {
   constructor(
@@ -14,28 +37,48 @@ async function request<T>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const url = `${API_URL}${path}`;
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
-  });
+  const url = `${resolveApiUrl()}${path}`;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
-  if (!res.ok) {
-    let detail = res.statusText;
-    try {
-      const body = await res.json();
-      detail = body.detail ?? detail;
-    } catch {
-      // ignore
+  try {
+    const res = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...options.headers,
+      },
+    });
+
+    if (!res.ok) {
+      let detail = res.statusText;
+      try {
+        const body = await res.json();
+        detail = body.detail ?? detail;
+      } catch {
+        // ignore
+      }
+      throw new ApiError(String(detail), res.status);
     }
-    throw new ApiError(String(detail), res.status);
-  }
 
-  if (res.status === 204) return undefined as T;
-  return res.json();
+    if (res.status === 204) return undefined as T;
+    return res.json();
+  } catch (err) {
+    if (err instanceof DOMException && err.name === "AbortError") {
+      throw new ApiError(
+        "Délai dépassé. Vérifiez que le backend tourne sur le Mac.",
+        0,
+      );
+    }
+    if (err instanceof ApiError) throw err;
+    throw new ApiError(
+      "Connexion impossible. Vérifiez le Wi‑Fi et que les serveurs tournent.",
+      0,
+    );
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export const api = {
@@ -47,4 +90,4 @@ export const api = {
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
 };
 
-export { ApiError, API_URL };
+export { ApiError, resolveApiUrl as getApiUrl };

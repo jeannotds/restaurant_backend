@@ -5,6 +5,19 @@ export interface Restaurant {
   telephone: string;
 }
 
+export interface RestaurantStats {
+  tables_total: number;
+  tables_occupees: number;
+  places_total: number;
+  places_occupees: number;
+  places_libres: number;
+  commandes_actives: number;
+  produits_total: number;
+  produits_disponibles: number;
+  places_reservées: number;
+  produits_non_disponibles: number;
+}
+
 export interface Table {
   id: string;
   numero: number;

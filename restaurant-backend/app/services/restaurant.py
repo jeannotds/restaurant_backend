@@ -8,6 +8,7 @@ from uuid import UUID
 from sqlalchemy import func
 
 STATUTS_ACTIFS = ["EN_ATTENTE", "EN_PREPARATION", "PRETE", "SERVIE"]
+STATUS_TABLES = ("LIBRE", "OCCUPEE", "RESERVEE")
 
 def create_restaurant(db: Session, data: RestaurantCreate):
     restaurant = Restaurant(
@@ -37,7 +38,7 @@ def get_restaurant_stats(db: Session, restaurant_id: UUID):
     tables_total = db.query(Table).filter(Table.restaurant_id == restaurant_id).count()
 
     # 3. Tables occupées — count
-    tables_occupees = db.query(Table).filter(Table.status == "OCCUPEE", Table.restaurant_id == restaurant_id).count()
+    tables_occupees = db.query(Table).filter(Table.status == STATUS_TABLES.OCCUPEE, Table.restaurant_id == restaurant_id).count()
 
     # 4. Places — somme des capacity
     places_total = db.query(
@@ -51,7 +52,7 @@ def get_restaurant_stats(db: Session, restaurant_id: UUID):
         func.coalesce(func.sum(Table.capacity), 0)
     ).filter(
         Table.restaurant_id == restaurant_id, 
-        Table.status == "OCCUPEE"
+        Table.status == STATUS_TABLES.OCCUPEE
     ).scalar()
 
     # 4. 1 places_libres

@@ -1,0 +1,294 @@
+"use client";
+
+import { FormEvent, useEffect, useState } from "react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import { api, ApiError } from "@/lib/api";
+import { formatPrice } from "@/lib/format";
+import type { Category, Produit } from "@/lib/types";
+import { Button } from "@/components/ui/Button";
+import { Input, Select, Textarea } from "@/components/ui/Input";
+import { Modal } from "@/components/ui/Modal";
+import { Badge, statusTone } from "@/components/ui/Badge";
+
+type FormState = {
+  nom: string;
+  description: string;
+  price: string;
+  disponible: string;
+  categorie_id: string;
+  images: string;
+};
+
+export function RestaurantProductsTab({
+  restaurantId,
+  onDataChange,
+}: {
+  restaurantId: string;
+  onDataChange?: () => void;
+}) {
+  const [items, setItems] = useState<Produit[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Produit | null>(null);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState<FormState>({
+    nom: "",
+    description: "",
+    price: "",
+    disponible: "true",
+    categorie_id: "",
+    images: "",
+  });
+
+  function load() {
+    setLoading(true);
+    Promise.all([
+      api.get<Produit[]>(`/produits/?restaurant_id=${restaurantId}`),
+      api.get<Category[]>(`/categories/?restaurant_id=${restaurantId}`),
+    ])
+      .then(([prods, cats]) => {
+        setItems(prods);
+        setCategories(cats);
+      })
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurantId]);
+
+  function categoryName(id: string) {
+    return categories.find((c) => c.id === id)?.nom ?? "—";
+  }
+
+  function openCreate() {
+    setEditing(null);
+    setForm({
+      nom: "",
+      description: "",
+      price: "",
+      disponible: "true",
+      categorie_id: categories[0]?.id ?? "",
+      images: "",
+    });
+    setOpen(true);
+  }
+
+  function openEdit(prod: Produit) {
+    setEditing(prod);
+    setForm({
+      nom: prod.nom,
+      description: prod.description ?? "",
+      price: String(prod.price),
+      disponible: String(prod.disponible),
+      categorie_id: prod.categorie_id,
+      images: prod.images.map((i) => i.url_image).join("\n"),
+    });
+    setOpen(true);
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError("");
+    const imageList = form.images
+      .split("\n")
+      .map((u) => u.trim())
+      .filter(Boolean);
+    const payload = {
+      nom: form.nom,
+      description: form.description || null,
+      price: Number(form.price),
+      disponible: form.disponible === "true",
+      categorie_id: form.categorie_id,
+      restaurant_id: restaurantId,
+      images: imageList.length > 0 ? imageList : null,
+    };
+    try {
+      if (editing) {
+        await api.put(`/produits/${editing.id}`, payload);
+      } else {
+        await api.post("/produits/", payload);
+      }
+      setOpen(false);
+      load();
+      onDataChange?.();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Erreur inconnue");
+    }
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Supprimer ce produit ?")) return;
+    try {
+      await api.delete(`/produits/${id}`);
+      load();
+      onDataChange?.();
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Erreur");
+    }
+  }
+
+  if (loading) {
+    return <p className="text-muted">Chargement des produits...</p>;
+  }
+
+  return (
+    <div>
+      <div className="mb-4 flex justify-end">
+        <Button onClick={openCreate} disabled={categories.length === 0}>
+          <Plus size={16} /> Nouveau produit
+        </Button>
+      </div>
+
+      {categories.length === 0 && (
+        <p className="mb-4 text-sm text-muted">
+          Créez d&apos;abord une catégorie pour ajouter des produits.
+        </p>
+      )}
+
+      {items.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border p-12 text-center">
+          <p className="text-muted">Aucun produit pour ce restaurant.</p>
+          {categories.length > 0 && (
+            <Button className="mt-4" onClick={openCreate}>
+              Créer un produit
+            </Button>
+          )}
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-xl border border-border bg-surface">
+          <table className="w-full text-left text-sm">
+            <thead className="border-b border-border bg-background">
+              <tr>
+                <th className="px-4 py-3 font-medium">Produit</th>
+                <th className="px-4 py-3 font-medium">Catégorie</th>
+                <th className="px-4 py-3 font-medium">Prix</th>
+                <th className="px-4 py-3 font-medium">Statut</th>
+                <th className="px-4 py-3 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((prod) => (
+                <tr key={prod.id} className="border-b border-border last:border-0">
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      {prod.images[0] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={prod.images[0].url_image}
+                          alt={prod.nom}
+                          className="h-10 w-10 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-background text-xs text-muted">
+                          N/A
+                        </div>
+                      )}
+                      <span className="font-medium">{prod.nom}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-muted">
+                    {categoryName(prod.categorie_id)}
+                  </td>
+                  <td className="px-4 py-3 font-medium text-primary">
+                    {formatPrice(prod.price)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Badge tone={statusTone(String(prod.disponible))}>
+                      {prod.disponible ? "Disponible" : "Indisponible"}
+                    </Badge>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(prod)}>
+                        <Pencil size={14} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(prod.id)}
+                      >
+                        <Trash2 size={14} className="text-danger" />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      <Modal
+        open={open}
+        title={editing ? "Modifier le produit" : "Nouveau produit"}
+        onClose={() => setOpen(false)}
+        wide
+      >
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Select
+            label="Catégorie"
+            value={form.categorie_id}
+            onChange={(e) =>
+              setForm({ ...form, categorie_id: e.target.value })
+            }
+            options={categories.map((c) => ({
+              value: c.id,
+              label: c.nom,
+            }))}
+          />
+          <Input
+            label="Nom"
+            required
+            value={form.nom}
+            onChange={(e) => setForm({ ...form, nom: e.target.value })}
+          />
+          <Textarea
+            label="Description"
+            value={form.description}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
+          />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label="Prix"
+              type="number"
+              required
+              min="0"
+              step="1"
+              value={form.price}
+              onChange={(e) => setForm({ ...form, price: e.target.value })}
+            />
+            <Select
+              label="Disponibilité"
+              value={form.disponible}
+              onChange={(e) =>
+                setForm({ ...form, disponible: e.target.value })
+              }
+              options={[
+                { value: "true", label: "Disponible" },
+                { value: "false", label: "Indisponible" },
+              ]}
+            />
+          </div>
+          <Textarea
+            label="URLs images (une par ligne)"
+            placeholder="https://example.com/image.jpg"
+            value={form.images}
+            onChange={(e) => setForm({ ...form, images: e.target.value })}
+          />
+          {error && <p className="text-sm text-danger">{error}</p>}
+          <div className="flex justify-end gap-2">
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
+              Annuler
+            </Button>
+            <Button type="submit">{editing ? "Enregistrer" : "Créer"}</Button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+}

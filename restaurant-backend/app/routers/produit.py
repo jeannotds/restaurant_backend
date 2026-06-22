@@ -1,11 +1,12 @@
 from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from fastapi import Query
 
 from app.core.database import get_db
 from app.schemas.produit import ProduitCreate, ProduitResponse, ProduitUpdate
+from app.schemas.produit_image import ProduitImageResponse
 from app.services import produit as produit_service
 
 router = APIRouter(
@@ -21,6 +22,18 @@ def create_produit(data: ProduitCreate, db: Session = Depends(get_db)):
 @router.get("/", response_model=List[ProduitResponse], status_code=200)
 def list_produits(restaurant_id: Optional[UUID] = Query(None), db: Session = Depends(get_db)):
   return produit_service.get_produits(db, restaurant_id)
+
+@router.post("/{id_produit}/images", response_model=ProduitImageResponse, status_code=201)
+async def upload_produit_image(
+  id_produit: UUID,
+  file: UploadFile = File(...),
+  db: Session = Depends(get_db),
+):
+  print("upload_produit_image : ", file)
+  image = produit_service.add_image_to_produit(db, id_produit, file)
+  if not image:
+    raise HTTPException(status_code=404, detail="Produit introuvable")
+  return image
 
 @router.delete("/{id_produit}", status_code=201)
 def delete_produit(id_produit: UUID, db: Session = Depends(get_db)):

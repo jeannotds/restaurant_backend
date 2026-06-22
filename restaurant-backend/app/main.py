@@ -1,8 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from app.routers import restaurant, table, category
 from app.core.database import Base, engine
 from app.models.restaurant import Restaurant
+from app.models.produit_image import ProduitImage  # noqa: F401
 from app.routers import produit
 from app.routers import commande
 
@@ -29,8 +31,14 @@ app.include_router(commande.router)
 # Créer les tables de base de données au démarrage¶
 @app.on_event("startup")
 def on_startup():
-    # Dev bootstrap: ensure the restaurants table exists.
     Base.metadata.create_all(bind=engine)
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "ALTER TABLE produit_images "
+                "ADD COLUMN IF NOT EXISTS public_id VARCHAR(255)"
+            )
+        )
 
 @app.get("/")
 async def root():

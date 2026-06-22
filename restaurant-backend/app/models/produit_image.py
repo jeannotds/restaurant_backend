@@ -28,6 +28,12 @@ class ProduitImage(Base):
     nullable=False, index=True,
   )
 
+  # Identifiant Cloudinary — permet de supprimer l'image du cloud
+  public_id = Column(
+    String(255),
+    nullable=True,
+  )
+
   create_at = Column(
     DateTime, default=datetime.now, nullable=False,
   )

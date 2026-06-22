@@ -47,9 +47,9 @@ def add_image_to_produit(db: Session, produit_id: UUID, file: UploadFile):
   if not produit:
     return None
 
-# upload_image est une fonction qui upload l'image sur Cloudinary et retourne un dictionnaire avec l'url et le public_id de l'image.
+  # upload_image est une fonction qui upload l'image sur Cloudinary et retourne un dictionnaire avec l'url et le public_id de l'image.
   uploaded = upload_image(file, folder="restaurant/produits")
-  
+
   # ProduitImage est un modèle de la base de données qui contient l'url et le public_id de l'image.
   image = ProduitImage(
     produit_id=produit_id,

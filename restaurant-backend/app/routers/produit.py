@@ -28,6 +28,7 @@ async def upload_produit_image(
   id_produit: UUID,
   file: UploadFile = File(...),
   db: Session = Depends(get_db),
+  
 ):
   print("upload_produit_image : ", file)
   image = produit_service.add_image_to_produit(db, id_produit, file)
@@ -49,3 +50,16 @@ def update_produit(id_produit: UUID, data: ProduitUpdate, db: Session = Depends(
   if not produits:
     raise HTTPException(status_code = 404, detail="Produit not found")
   return produits
+
+# @router.put("/{id_produit}/images/{id_image}", response_model=ProduitImageResponse, status_code=201)
+# async def upload_produit_image(
+#   id_produit: UUID,
+#   file: UploadFile = File(...),
+#   db: Session = Depends(get_db),
+#   id_image: UUID,
+# ):
+#   print("upload_produit_image : ", file)
+#   image = produit_service.add_image_to_produit(db, id_produit, file)
+#   if not image:
+#     raise HTTPException(status_code=404, detail="Produit introuvable")
+#   return image

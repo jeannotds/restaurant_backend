@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { MapPin, Phone } from "lucide-react";
-import { api } from "@/lib/api";
+import { LogOut, MapPin, Phone } from "lucide-react";
+import { api, endOccupation } from "@/lib/api";
 import type {
   Category,
   Commande,
@@ -11,8 +11,10 @@ import type {
   Restaurant,
   RestaurantStats,
   Table,
+  TableJoinResponse,
 } from "@/lib/types";
 import {
+  clearClientSession,
   getSessionForRestaurant,
   setClientSession,
   type ClientSession,
@@ -28,6 +30,7 @@ import { CategoriesView } from "@/components/client/CategoriesView";
 import { CartPanel } from "@/components/client/CartPanel";
 import { AccessCodeModal } from "@/components/client/AccessCodeModal";
 import { StatCard } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 export default function RestaurantClientPage() {
   const params = useParams();
@@ -45,6 +48,9 @@ export default function RestaurantClientPage() {
   const [session, setSession] = useState<ClientSession | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [accessCodeOpen, setAccessCodeOpen] = useState(false);
+  const [joinTargetTable, setJoinTargetTable] = useState<Table | null>(null);
+  const [leaving, setLeaving] = useState(false);
+  const [joinBlockedMessage, setJoinBlockedMessage] = useState("");
 
   const loadData = useCallback(() => {
     return Promise.all([
@@ -55,6 +61,15 @@ export default function RestaurantClientPage() {
       api.get<Produit[]>(`/produits/?restaurant_id=${restaurantId}`),
       api.get<Commande[]>(`/commandes/?restaurant_id=${restaurantId}`),
     ]);
+  }, [restaurantId]);
+
+  const refreshTables = useCallback(async () => {
+    const [t, s] = await Promise.all([
+      api.get<Table[]>(`/tables/?restaurant_id=${restaurantId}`),
+      api.get<RestaurantStats>(`/restaurants/${restaurantId}/stats`),
+    ]);
+    setTables(t);
+    setStats(s);
   }, [restaurantId]);
 
   useEffect(() => {
@@ -74,18 +89,68 @@ export default function RestaurantClientPage() {
   }, [loadData]);
 
   useEffect(() => {
-    setSession(getSessionForRestaurant(restaurantId));
+    const stored = getSessionForRestaurant(restaurantId);
+    if (stored && !stored.occupationId) {
+      clearClientSession();
+      setSession(null);
+    } else {
+      setSession(stored);
+    }
   }, [restaurantId]);
 
-  function connectTable(table: Table) {
+  function handleJoinSuccess(result: TableJoinResponse) {
     const newSession: ClientSession = {
       restaurantId,
-      tableId: table.id,
-      tableNumero: table.numero,
+      tableId: result.table_id,
+      tableNumero: result.table_numero,
+      occupationId: result.occupation_id,
+      nombreDePlaces: result.nombre_de_places,
     };
     setClientSession(newSession);
     setSession(newSession);
+    setJoinTargetTable(null);
     setActiveTab("menu");
+    refreshTables().catch(() => undefined);
+  }
+
+  function openJoinModal(table?: Table) {
+    if (session) {
+      if (table && table.id === session.tableId) {
+        setJoinBlockedMessage(
+          `Vous êtes déjà connecté à la table ${session.tableNumero}.`,
+        );
+      } else {
+        const targetLabel = table
+          ? `la table ${table.numero}`
+          : "une autre table";
+        setJoinBlockedMessage(
+          `Vous êtes connecté à la table ${session.tableNumero}. Quittez la table avant de rejoindre ${targetLabel}.`,
+        );
+      }
+      setActiveTab("tables");
+      return;
+    }
+    setJoinBlockedMessage("");
+    setJoinTargetTable(table ?? null);
+    setAccessCodeOpen(true);
+  }
+
+  async function handleLeaveTable() {
+    if (!session) return;
+    setLeaving(true);
+    try {
+      await endOccupation(session.occupationId);
+      clearClientSession();
+      setSession(null);
+      setCart([]);
+      setJoinBlockedMessage("");
+      setActiveTab("tables");
+      await refreshTables();
+    } catch {
+      setError("Impossible de quitter la table. Réessayez.");
+    } finally {
+      setLeaving(false);
+    }
   }
 
   function addToCart(produit: Produit) {
@@ -151,10 +216,23 @@ export default function RestaurantClientPage() {
         title={restaurant.nom}
         subtitle={
           hasSession
-            ? `Table ${session.tableNumero} · Connecté`
+            ? `Table ${session.tableNumero} · ${session.nombreDePlaces} pers. · Connecté`
             : "Sélectionnez une table pour commander"
         }
         backHref="/"
+        action={
+          hasSession ? (
+            <Button
+              variant="ghost"
+              className="hidden shrink-0 text-xs sm:inline-flex"
+              onClick={handleLeaveTable}
+              disabled={leaving}
+            >
+              <LogOut size={14} />
+              {leaving ? "..." : "Quitter"}
+            </Button>
+          ) : undefined
+        }
       />
 
       <main className="mx-auto max-w-3xl px-4 py-4">
@@ -168,6 +246,20 @@ export default function RestaurantClientPage() {
             {restaurant.telephone}
           </span>
         </div>
+
+        {hasSession && (
+          <div className="mb-4 sm:hidden">
+            <Button
+              variant="ghost"
+              className="w-full text-sm"
+              onClick={handleLeaveTable}
+              disabled={leaving}
+            >
+              <LogOut size={16} />
+              {leaving ? "Déconnexion..." : "Quitter la table"}
+            </Button>
+          </div>
+        )}
 
         {stats && (
           <div className="mb-6 grid grid-cols-2 gap-2 sm:gap-4 lg:grid-cols-4">
@@ -216,8 +308,14 @@ export default function RestaurantClientPage() {
           <TablesView
             tables={tables}
             selectedTableId={session?.tableId ?? null}
-            onSelectTable={connectTable}
-            onOpenAccessCode={() => setAccessCodeOpen(true)}
+            hasActiveSession={hasSession}
+            activeTableNumero={session?.tableNumero}
+            joinBlockedMessage={joinBlockedMessage}
+            onDismissJoinBlocked={() => setJoinBlockedMessage("")}
+            onRequestJoin={(table) => openJoinModal(table)}
+            onOpenAccessCode={() => openJoinModal()}
+            onLeaveTable={handleLeaveTable}
+            leaving={leaving}
           />
         )}
 
@@ -231,6 +329,7 @@ export default function RestaurantClientPage() {
               restaurantId={restaurantId}
               tableId={session.tableId}
               tableNumero={session.tableNumero}
+              occupationId={session.occupationId}
               cart={cart}
               onAdd={addById}
               onRemove={removeFromCart}
@@ -260,10 +359,16 @@ export default function RestaurantClientPage() {
       />
 
       <AccessCodeModal
-        open={accessCodeOpen}
+        open={accessCodeOpen && !session}
         tables={tables}
-        onClose={() => setAccessCodeOpen(false)}
-        onSuccess={connectTable}
+        preselectedTable={joinTargetTable}
+        blocked={!!session}
+        blockedMessage={joinBlockedMessage}
+        onClose={() => {
+          setAccessCodeOpen(false);
+          setJoinTargetTable(null);
+        }}
+        onSuccess={handleJoinSuccess}
       />
     </div>
   );

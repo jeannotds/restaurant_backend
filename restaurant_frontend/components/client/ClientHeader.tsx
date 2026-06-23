@@ -5,10 +5,12 @@ export function ClientHeader({
   title,
   subtitle,
   backHref,
+  action,
 }: {
   title: string;
   subtitle?: string;
   backHref?: string;
+  action?: React.ReactNode;
 }) {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur">
@@ -32,6 +34,7 @@ export function ClientHeader({
             <p className="truncate text-sm text-muted">{subtitle}</p>
           )}
         </div>
+        {action}
         <Link
           href="/admin"
           className="hidden shrink-0 text-xs text-muted underline-offset-2 hover:text-foreground hover:underline sm:inline"

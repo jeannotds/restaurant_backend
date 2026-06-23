@@ -13,6 +13,7 @@ interface CartPanelProps {
   restaurantId: string;
   tableId: string;
   tableNumero: number;
+  occupationId: string;
   cart: CartItem[];
   onAdd: (produitId: string) => void;
   onRemove: (produitId: string) => void;
@@ -24,6 +25,7 @@ export function CartPanel({
   restaurantId,
   tableId,
   tableNumero,
+  occupationId,
   cart,
   onAdd,
   onRemove,
@@ -39,7 +41,9 @@ export function CartPanel({
     0,
   );
 
-  const tableOrders = existingOrders.filter((o) => o.table_id === tableId);
+  const groupOrders = existingOrders.filter(
+    (o) => o.occupation_id === occupationId,
+  );
 
   async function handleSubmit() {
     if (cart.length === 0) return;
@@ -58,6 +62,7 @@ export function CartPanel({
         numero_commande: nextNum,
         statut: "EN_ATTENTE",
         montant_total: total,
+        occupation_id: occupationId,
         items: cart.map((item) => ({
           produit_id: item.produit.id,
           quantite: item.quantite,
@@ -152,13 +157,13 @@ export function CartPanel({
         </div>
       )}
 
-      {tableOrders.length > 0 && (
+      {groupOrders.length > 0 && (
         <div>
           <h3 className="mb-3 font-semibold text-secondary">
-            Vos commandes sur cette table
+            Vos commandes
           </h3>
           <div className="space-y-2">
-            {tableOrders.map((order) => (
+            {groupOrders.map((order) => (
               <button
                 key={order.id}
                 onClick={() =>

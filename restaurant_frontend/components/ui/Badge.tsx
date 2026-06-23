@@ -34,6 +34,7 @@ export function Badge({
 export function statusTone(status: string): keyof typeof tones {
   const map: Record<string, keyof typeof tones> = {
     LIBRE: "success",
+    PARTIELLE: "warning",
     OCCUPEE: "warning",
     RESERVEE: "info",
     EN_ATTENTE: "default",

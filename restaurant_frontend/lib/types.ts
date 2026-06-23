@@ -22,9 +22,33 @@ export interface Table {
   id: string;
   numero: number;
   capacity: number;
+  places_occupees?: number;
   status: string;
   code_acces: string | null;
   restaurant_id: string;
+}
+
+export interface TableJoinRequest {
+  code_acces: string;
+  nombre_de_places: number;
+}
+
+export interface TableJoinResponse {
+  occupation_id: string;
+  table_id: string;
+  table_numero: number;
+  nombre_de_places: number;
+  places_occupees: number;
+  places_libres: number;
+  status: string;
+}
+
+export interface TableEndOccupationResponse {
+  message: string;
+  occupation_id: string;
+  places_occupees: number;
+  places_libres: number;
+  status: string;
 }
 
 export interface Category {
@@ -73,9 +97,10 @@ export interface Commande {
   statut: string;
   montant_total: number;
   items: CommandeItem[];
+  occupation_id?: string | null;
 }
 
-export type TableStatus = "LIBRE" | "OCCUPEE" | "RESERVEE";
+export type TableStatus = "LIBRE" | "PARTIELLE" | "OCCUPEE" | "RESERVEE";
 export type CommandeStatut =
   | "EN_ATTENTE"
   | "EN_PREPARATION"

@@ -1,5 +1,6 @@
 export const TABLE_STATUS_LABELS: Record<string, string> = {
   LIBRE: "Libre",
+  PARTIELLE: "Partielle",
   OCCUPEE: "Occupée",
   RESERVEE: "Réservée",
 };

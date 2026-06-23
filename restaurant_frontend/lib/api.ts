@@ -1,4 +1,10 @@
-import type { ImageReplacement, ProduitImage } from "@/lib/types";
+import type {
+  ImageReplacement,
+  ProduitImage,
+  TableEndOccupationResponse,
+  TableJoinRequest,
+  TableJoinResponse,
+} from "@/lib/types";
 
 const REQUEST_TIMEOUT_MS = 20_000;
 
@@ -148,6 +154,22 @@ export async function syncProduitImagesOnUpdate(
   if (options.newFiles.length > 0) {
     await uploadProduitImages(produitId, options.newFiles);
   }
+}
+
+export async function joinTable(
+  tableId: string,
+  data: TableJoinRequest,
+): Promise<TableJoinResponse> {
+  return api.post<TableJoinResponse>(`/tables/${tableId}/join`, data);
+}
+
+export async function endOccupation(
+  occupationId: string,
+): Promise<TableEndOccupationResponse> {
+  return api.post<TableEndOccupationResponse>(
+    `/tables/occupations/${occupationId}/end`,
+    {},
+  );
 }
 
 export { ApiError, resolveApiUrl as getApiUrl };

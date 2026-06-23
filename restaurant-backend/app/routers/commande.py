@@ -41,7 +41,7 @@ def update_commande(
     data: CommandeUpdate, 
     db: Session = Depends(get_db)
 ):
-    commande = commande_service.update_commande(id_commande, db, data, occupation_id)
+    commande = commande_service.update_commande(id_commande, db, data)
     if not commande:
         raise HTTPException(status_code=404, detail="Commande non trouvée")
     return commande

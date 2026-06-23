@@ -1,0 +1,143 @@
+Codes d'accès des tables (seed)
+==================================================
+
+
+## Café Lumière
+  Table 1 (6 pl., LIBRE) → R09T01-IA5U6H
+  Table 2 (2 pl., LIBRE) → R09T02-QZXEBB
+  Table 3 (8 pl., LIBRE) → R09T03-ITNN8Z
+  Table 4 (6 pl., LIBRE) → R09T04-05X4W7
+  Table 5 (4 pl., LIBRE) → R09T05-NP84DY
+  Table 6 (6 pl., LIBRE) → R09T06-J883DH
+  Table 7 (2 pl., LIBRE) → R09T07-M92H3T
+  Table 8 (4 pl., LIBRE) → R09T08-I12VJ9
+  Table 9 (4 pl., LIBRE) → R09T09-2D5EM2
+  Table 10 (6 pl., LIBRE) → R09T10-JEPECQ
+  Table 11 (6 pl., LIBRE) → R09T11-DS8B25
+  Table 12 (4 pl., LIBRE) → R09T12-8CROYR
+
+## Chez Maman
+  Table 1 (4 pl., LIBRE) → R02T01-1T2TAL
+  Table 2 (2 pl., LIBRE) → R02T02-N93IIU
+  Table 3 (2 pl., LIBRE) → R02T03-RC11ER
+  Table 4 (4 pl., LIBRE) → R02T04-5PHT0H
+  Table 5 (4 pl., LIBRE) → R02T05-YN6QIC
+  Table 6 (2 pl., LIBRE) → R02T06-IHCWI6
+  Table 7 (6 pl., LIBRE) → R02T07-IYHE7U
+  Table 8 (8 pl., LIBRE) → R02T08-RODXMO
+  Table 9 (2 pl., LIBRE) → R02T09-9DOM5I
+  Table 10 (4 pl., LIBRE) → R02T10-FGQ5C3
+  Table 11 (2 pl., LIBRE) → R02T11-94874F
+  Table 12 (8 pl., LIBRE) → R02T12-56FAO7
+
+## Grill & Smoke
+  Table 1 (2 pl., RESERVEE) → R07T01-YJB1QX
+  Table 2 (4 pl., LIBRE) → R07T02-VWRDML
+  Table 3 (2 pl., LIBRE) → R07T03-LYK83T
+  Table 4 (8 pl., LIBRE) → R07T04-JE153A
+  Table 5 (8 pl., LIBRE) → R07T05-GN1W1H
+  Table 6 (4 pl., PARTIELLE) → R07T06-5RBW2Z
+  Table 7 (4 pl., LIBRE) → R07T07-TD96QE
+  Table 8 (4 pl., LIBRE) → R07T08-ZSJ49I
+  Table 9 (4 pl., LIBRE) → R07T09-7S55J2
+  Table 10 (6 pl., LIBRE) → R07T10-2JA04U
+  Table 11 (8 pl., LIBRE) → R07T11-QRL1N7
+  Table 12 (4 pl., RESERVEE) → R07T12-IN4OLR
+
+## La Brasserie du Fleuve
+  Table 1 (4 pl., LIBRE) → R03T01-BCXULJ
+  Table 2 (6 pl., LIBRE) → R03T02-OYKL1C
+  Table 3 (8 pl., LIBRE) → R03T03-UDTSEM
+  Table 4 (2 pl., PARTIELLE) → R03T04-KPTK93
+  Table 5 (2 pl., LIBRE) → R03T05-T7D5J6
+  Table 6 (4 pl., LIBRE) → R03T06-VZHWJR
+  Table 7 (2 pl., LIBRE) → R03T07-PJA1WJ
+  Table 8 (8 pl., LIBRE) → R03T08-PAC56T
+  Table 9 (6 pl., LIBRE) → R03T09-FEL624
+  Table 10 (6 pl., LIBRE) → R03T10-ID25OW
+  Table 11 (4 pl., PARTIELLE) → R03T11-5935A0
+  Table 12 (6 pl., LIBRE) → R03T12-OY0IFZ
+
+## La Table du Chef
+  Table 1 (6 pl., LIBRE) → R10T01-LLJ8YR
+  Table 2 (2 pl., LIBRE) → R10T02-DD03UV
+  Table 3 (6 pl., LIBRE) → R10T03-O57P6B
+  Table 4 (4 pl., LIBRE) → R10T04-MUHXID
+  Table 5 (6 pl., LIBRE) → R10T05-KIPU1W
+  Table 6 (2 pl., LIBRE) → R10T06-XYBJ17
+  Table 7 (6 pl., LIBRE) → R10T07-5UOFWB
+  Table 8 (4 pl., LIBRE) → R10T08-QFLL7V
+  Table 9 (2 pl., LIBRE) → R10T09-1BCPPV
+  Table 10 (6 pl., LIBRE) → R10T10-1EPKYR
+  Table 11 (4 pl., LIBRE) → R10T11-OVAKHE
+  Table 12 (4 pl., LIBRE) → R10T12-ERPETI
+
+## Le Jardin Gombe
+  Table 1 (2 pl., LIBRE) → R01T01-JI0Y6D
+  Table 2 (6 pl., LIBRE) → R01T02-DIVUZZ
+  Table 3 (6 pl., LIBRE) → R01T03-V3A3ZM
+  Table 4 (4 pl., LIBRE) → R01T04-1DNMMJ
+  Table 5 (2 pl., LIBRE) → R01T05-T9NT3W
+  Table 6 (6 pl., LIBRE) → R01T06-ZBIKCI
+  Table 7 (2 pl., LIBRE) → R01T07-Q4FMYZ
+  Table 8 (2 pl., LIBRE) → R01T08-G0FN9X
+  Table 9 (4 pl., LIBRE) → R01T09-41IBLJ
+  Table 10 (4 pl., PARTIELLE) → R01T10-5LXO6Q
+  Table 11 (4 pl., LIBRE) → R01T11-0T0PVN
+  Table 12 (4 pl., LIBRE) → R01T12-DBDW2P
+
+## Le Petit Bistrot
+  Table 1 (4 pl., LIBRE) → R06T01-XR2DHY
+  Table 2 (4 pl., LIBRE) → R06T02-NTM9TM
+  Table 3 (8 pl., LIBRE) → R06T03-JEGET1
+  Table 4 (4 pl., LIBRE) → R06T04-0JV1V9
+  Table 5 (4 pl., LIBRE) → R06T05-MKZEBB
+  Table 6 (4 pl., LIBRE) → R06T06-E5R5UQ
+  Table 7 (8 pl., LIBRE) → R06T07-8J5ECR
+  Table 8 (2 pl., LIBRE) → R06T08-38DIUO
+  Table 9 (4 pl., LIBRE) → R06T09-N6KVPU
+  Table 10 (2 pl., LIBRE) → R06T10-08HHXF
+  Table 11 (4 pl., LIBRE) → R06T11-FOYQBK
+  Table 12 (4 pl., LIBRE) → R06T12-QY72WX
+
+## Pizza Napoli
+  Table 1 (2 pl., LIBRE) → R04T01-P0LVSN
+  Table 2 (4 pl., LIBRE) → R04T02-ZA7TZ0
+  Table 3 (4 pl., LIBRE) → R04T03-CXLL4Z
+  Table 4 (4 pl., LIBRE) → R04T04-YLZTGX
+  Table 5 (6 pl., LIBRE) → R04T05-6WKTAK
+  Table 6 (6 pl., LIBRE) → R04T06-VLPYS2
+  Table 7 (4 pl., LIBRE) → R04T07-KXWD8I
+  Table 8 (4 pl., LIBRE) → R04T08-HAIR4C
+  Table 9 (6 pl., PARTIELLE) → R04T09-GZRIXA
+  Table 10 (2 pl., LIBRE) → R04T10-H2ZQU7
+  Table 11 (2 pl., LIBRE) → R04T11-2Y9V86
+  Table 12 (6 pl., LIBRE) → R04T12-T60RJI
+
+## Saveurs d'Afrique
+  Table 1 (6 pl., LIBRE) → R08T01-4NLZ15
+  Table 2 (2 pl., LIBRE) → R08T02-IYKID9
+  Table 3 (2 pl., LIBRE) → R08T03-Y6B2KN
+  Table 4 (4 pl., LIBRE) → R08T04-OYGGVN
+  Table 5 (4 pl., LIBRE) → R08T05-UIWQY6
+  Table 6 (8 pl., PARTIELLE) → R08T06-TC89K8
+  Table 7 (4 pl., LIBRE) → R08T07-K94DNM
+  Table 8 (4 pl., RESERVEE) → R08T08-K9XJUY
+  Table 9 (2 pl., PARTIELLE) → R08T09-361I2H
+  Table 10 (4 pl., LIBRE) → R08T10-YZX4W6
+  Table 11 (2 pl., LIBRE) → R08T11-PU0DK0
+  Table 12 (4 pl., LIBRE) → R08T12-25NSJF
+
+## Sushi Zen
+  Table 1 (6 pl., LIBRE) → R05T01-7KO64T
+  Table 2 (4 pl., LIBRE) → R05T02-JRNY20
+  Table 3 (8 pl., PARTIELLE) → R05T03-T6VXDP
+  Table 4 (8 pl., LIBRE) → R05T04-JLQM5K
+  Table 5 (6 pl., LIBRE) → R05T05-CAT9MX
+  Table 6 (2 pl., LIBRE) → R05T06-8HAFEY
+  Table 7 (4 pl., LIBRE) → R05T07-JNV8Z2
+  Table 8 (4 pl., OCCUPEE) → R05T08-DALY8O
+  Table 9 (4 pl., LIBRE) → R05T09-YWD14V
+  Table 10 (2 pl., LIBRE) → R05T10-UBTXCX
+  Table 11 (2 pl., LIBRE) → R05T11-3D8W3Z
+  Table 12 (6 pl., LIBRE) → R05T12-SXW71Q

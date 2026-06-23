@@ -9,7 +9,7 @@ class TableCreate(BaseModel):
   status: str;
   code_acces: Optional[str] = None;
   restaurant_id: UUID;
-  places_occupees: int;
+  places_occupees: int = 0;
 
 class TableResponse(BaseModel):
   id: UUID;

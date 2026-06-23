@@ -38,7 +38,12 @@ def get_restaurant_stats(db: Session, restaurant_id: UUID):
     tables_total = db.query(Table).filter(Table.restaurant_id == restaurant_id).count()
 
     # 3. Tables occupées — count
-    tables_occupees = db.query(Table).filter(Table.status == "OCCUPEE", Table.restaurant_id == restaurant_id).count()
+    # Ce champ compte combien de tables ont au moins un client — pas combien de sièges sont pris.
+    # tables_occupees = db.query(Table).filter(Table.status == "OCCUPEE", Table.restaurant_id == restaurant_id).count()
+    tables_occupees = db.query(Table).filter(
+        Table.restaurant_id == restaurant_id,
+        Table.places_occupees > 0
+    ).count()
 
     # 4. Places — somme des capacity
     # Places totales (toutes les tables)

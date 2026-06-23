@@ -51,11 +51,13 @@ def join_table(db: Session, table_id: UUID, data: TableJoinRequest):
 
 # fonction utilitaire pour calculer le statut de la table
 def _compute_table_status(table):
-    if table.places_occupees >= table.capacity:
-        return "OCCUPEE"
-    if table.places_occupees > 0:
-        return "PARTIELLE"
-    return "LIBRE"
+  occupees = table.places_occupees or 0
+  capacity = table.capacity or 0
+  if occupees >= capacity:
+      return "OCCUPEE"
+  if occupees > 0:
+      return "PARTIELLE"
+  return "LIBRE"
 
 def end_occupation(db: Session, occupation_id: UUID):
 

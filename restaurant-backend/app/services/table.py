@@ -12,7 +12,7 @@ def create_table(db: Session, data: TableCreate):
     status=data.status,
     code_acces=data.code_acces,
     restaurant_id=data.restaurant_id,
-    places_occupees=data.places_occupees,
+    places_occupees= 0,
   )
   db.add(table)
   db.commit()

@@ -62,21 +62,6 @@ def end_occupation(occupation_id: UUID, db: Session = Depends(get_db)):
     "message": "Occupation terminée",
     "occupation_id": occupation.id,
     "places_occupees": table.places_occupees,
-    "places_libres": table.capacity - table.places_occupees,
+    "places_libres": max(0, (table.capacity or 0) - (table.places_occupees or 0)),
     "status": table.status,
   }
-
-# @router.post("/{occupation_id}/end", response_model=TableJoinResponse, status_code=201)
-# def end_occupation(occupation_id: UUID, db: Session = Depends(get_db)):
-#   occupation,table = table_occupation_service.end_occupation(db, occupation_id)
-#   if not occupation or not table:
-#     raise HTTPException(status_code=404, detail="Occupation non trouvée")
-#   return TableJoinResponse(
-#     occupation_id=occupation.id,
-#     table_id=table.id,
-#     table_numero=table.numero,
-#     nombre_de_places=occupation.nombre_de_places,
-#     places_occupees=table.places_occupees,
-#     places_libres=table.capacity - table.places_occupees or 0,
-#     status=table.status,
-#   )

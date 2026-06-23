@@ -47,7 +47,7 @@ def join_table(table_id: UUID, data: TableJoinRequest, db: Session = Depends(get
     table_id=table.id,
     table_numero=table.numero or 0,
     nombre_de_places=occupation.nombre_de_places,
-    places_occupees=table.places_occupees,
+    places_occupees=table.places_occupees or 0,
     places_libres= max(0, (table.capacity or 0) - (table.places_occupees or 0)),
     status=table.status,
   )
@@ -61,7 +61,7 @@ def end_occupation(occupation_id: UUID, db: Session = Depends(get_db)):
   return {
     "message": "Occupation terminée",
     "occupation_id": occupation.id,
-    "places_occupees": table.places_occupees,
+    "places_occupees": table.places_occupees or 0,
     "places_libres": max(0, (table.capacity or 0) - (table.places_occupees or 0)),
     "status": table.status,
   }

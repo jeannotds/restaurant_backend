@@ -29,6 +29,7 @@ import { TablesView } from "@/components/client/TablesView";
 import { CategoriesView } from "@/components/client/CategoriesView";
 import { CartPanel } from "@/components/client/CartPanel";
 import { AccessCodeModal } from "@/components/client/AccessCodeModal";
+import { LeaveTableConfirmModal } from "@/components/client/LeaveTableConfirmModal";
 import { StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
@@ -51,6 +52,7 @@ export default function RestaurantClientPage() {
   const [joinTargetTable, setJoinTargetTable] = useState<Table | null>(null);
   const [leaving, setLeaving] = useState(false);
   const [joinBlockedMessage, setJoinBlockedMessage] = useState("");
+  const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
 
   const loadData = useCallback(() => {
     return Promise.all([
@@ -135,6 +137,11 @@ export default function RestaurantClientPage() {
     setAccessCodeOpen(true);
   }
 
+  function requestLeaveTable() {
+    if (!session) return;
+    setLeaveConfirmOpen(true);
+  }
+
   async function handleLeaveTable() {
     if (!session) return;
     setLeaving(true);
@@ -144,6 +151,7 @@ export default function RestaurantClientPage() {
       setSession(null);
       setCart([]);
       setJoinBlockedMessage("");
+      setLeaveConfirmOpen(false);
       setActiveTab("tables");
       await refreshTables();
     } catch {
@@ -225,7 +233,7 @@ export default function RestaurantClientPage() {
             <Button
               variant="ghost"
               className="hidden shrink-0 text-xs sm:inline-flex"
-              onClick={handleLeaveTable}
+              onClick={requestLeaveTable}
               disabled={leaving}
             >
               <LogOut size={14} />
@@ -252,7 +260,7 @@ export default function RestaurantClientPage() {
             <Button
               variant="ghost"
               className="w-full text-sm"
-              onClick={handleLeaveTable}
+              onClick={requestLeaveTable}
               disabled={leaving}
             >
               <LogOut size={16} />
@@ -314,7 +322,7 @@ export default function RestaurantClientPage() {
             onDismissJoinBlocked={() => setJoinBlockedMessage("")}
             onRequestJoin={(table) => openJoinModal(table)}
             onOpenAccessCode={() => openJoinModal()}
-            onLeaveTable={handleLeaveTable}
+            onLeaveTable={requestLeaveTable}
             leaving={leaving}
           />
         )}
@@ -370,6 +378,16 @@ export default function RestaurantClientPage() {
         }}
         onSuccess={handleJoinSuccess}
       />
+
+      {session && (
+        <LeaveTableConfirmModal
+          open={leaveConfirmOpen}
+          tableNumero={session.tableNumero}
+          leaving={leaving}
+          onClose={() => setLeaveConfirmOpen(false)}
+          onConfirm={handleLeaveTable}
+        />
+      )}
     </div>
   );
 }

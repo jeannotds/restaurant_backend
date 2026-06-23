@@ -30,7 +30,7 @@ class Commande(Base):
   statut = Column(
     String(100),
     nullable=False,
-    default="EN_PREPARATION,",
+    default="EN_PREPARATION",
   )
 
   montant_total = Column(
@@ -40,6 +40,12 @@ class Commande(Base):
   )
 
   items = relationship("CommandeItem", back_populates="commande")
+
+  occupation_id = Column(
+    UUID(as_uuid=True),
+    ForeignKey("table_occupations.id"),
+    nullable=True,  # nullable au début pour anciennes commandes
+  )
 
   create_at = Column(
     DateTime,

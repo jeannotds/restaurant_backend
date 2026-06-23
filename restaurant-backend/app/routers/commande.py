@@ -36,8 +36,12 @@ def delete_commande(id_commande: UUID, db: Session = Depends(get_db)):
     return coammnde
 
 @router.put("/{id_commande}", response_model=CommandeResponse, status_code=201)
-def update_commande(id_commande: UUID, data: CommandeUpdate, db: Session = Depends(get_db)):
-    commande = commande_service.update_commande(id_commande, db, data)
+def update_commande(
+    id_commande: UUID, 
+    data: CommandeUpdate, 
+    db: Session = Depends(get_db)
+):
+    commande = commande_service.update_commande(id_commande, db, data, occupation_id)
     if not commande:
         raise HTTPException(status_code=404, detail="Commande non trouvée")
     return commande

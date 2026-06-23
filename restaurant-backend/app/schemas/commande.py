@@ -11,6 +11,7 @@ class CommandeCreate(BaseModel):
   statut: str;
   montant_total: float;
   items: List[CommandeItemCreate];
+  occupation_id: UUID;
 
 class CommandeResponse(BaseModel):
   id: UUID;
@@ -19,6 +20,7 @@ class CommandeResponse(BaseModel):
   statut: str;
   montant_total: float;
   items: List[CommandeItemResponse];
+  occupation_id: Optional[UUID] = None;
   class Config:
     from_attributes = True;
 
@@ -27,6 +29,6 @@ class CommandeUpdate(BaseModel):
   numero_commande: Optional[int] = None;
   statut: Optional[str] = None;
   montant_total: Optional[float] = None;
-
+  occupation_id: Optional[UUID] = None;
   class Config:
     from_attributes = True;

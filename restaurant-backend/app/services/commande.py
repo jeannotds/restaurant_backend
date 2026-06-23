@@ -1,19 +1,31 @@
 from typing import List, Optional
 from uuid import UUID
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
 from app.schemas.commande import CommandeCreate, CommandeResponse, CommandeUpdate, CommandeItemCreate
 from app.models.commande import Commande
 from app.models.table import Table
 from app.models.commande_item import CommandeItem
 from app.models.produit import Produit
+from app.models.table_occupation import TableOccupation
 
 def create_commande(db: Session, data: CommandeCreate):
+
+    # vérifier si l'occupation existe et est active
+    occupation = db.query(TableOccupation).filter(
+      TableOccupation.id == data.occupation_id,
+      TableOccupation.table_id == data.table_id,
+      TableOccupation.status == "ACTIVE",
+    ).first()
+
+    if not occupation:
+        raise HTTPException(status_code=403, detail="Occupation non trouvée")
+
     commande = Commande(
         table_id=data.table_id,
         numero_commande=data.numero_commande,
+        occupation_id=occupation.id,
         statut=data.statut,
         montant_total=data.montant_total,
     )
@@ -28,7 +40,7 @@ def create_commande(db: Session, data: CommandeCreate):
       produit = db.query(Produit).filter(Produit.id == item.produit_id).first()
 
       if not produit:
-        raise HTTPException(status_code=404, detail=f"Produit {item.produit_id} non trouvé")
+        raise HTTPException(status_code=403, detail=f"Produit {item.produit_id} non trouvé")
 
       sous_total = produit.price * item.quantite
 
@@ -81,7 +93,9 @@ def update_commande(id_commande: UUID, db: Session, data: CommandeUpdate):
         commande.statut = data.statut
     if data.montant_total is not None:
         commande.montant_total = data.montant_total
-      
+    if data.occupation_id is not None:
+        commande.occupation_id = data.occupation_id
+
     db.commit()
     db.refresh(commande)
     return commande

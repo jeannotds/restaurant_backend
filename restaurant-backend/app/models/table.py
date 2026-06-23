@@ -23,6 +23,12 @@ class Table(Base):
     nullable=True,
   )
 
+  places_occupees = Column(
+    Integer,
+    nullable=True,
+    default=0,
+  )
+
   status = Column(
     String(200),
     nullable=False,

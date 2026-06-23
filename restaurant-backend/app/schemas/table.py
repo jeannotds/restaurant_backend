@@ -9,6 +9,7 @@ class TableCreate(BaseModel):
   status: str;
   code_acces: Optional[str] = None;
   restaurant_id: UUID;
+  places_occupees: int;
 
 class TableResponse(BaseModel):
   id: UUID;
@@ -17,6 +18,7 @@ class TableResponse(BaseModel):
   status: str;
   code_acces: Optional[str] = None;
   restaurant_id: UUID;
+  places_occupees: int;
 
 class TableUpdate(BaseModel):
   numero: Optional[int] = None;
@@ -24,6 +26,7 @@ class TableUpdate(BaseModel):
   status: Optional[str] = None;
   code_acces: Optional[str] = None;
   restaurant_id: Optional[UUID] = None;
+  places_occupees: Optional[int] = None;
 
   class Config:
     from_attributes = True;

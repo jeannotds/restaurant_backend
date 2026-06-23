@@ -41,29 +41,34 @@ def get_restaurant_stats(db: Session, restaurant_id: UUID):
     tables_occupees = db.query(Table).filter(Table.status == "OCCUPEE", Table.restaurant_id == restaurant_id).count()
 
     # 4. Places — somme des capacity
+    # Places totales (toutes les tables)
     places_total = db.query(
         func.coalesce(func.sum(Table.capacity), 0)
     ).filter(
         Table.restaurant_id == restaurant_id
     ).scalar()
 
-     # 4. 1 places_occupees
+    # Places réellement occupées (toutes tables : LIBRE, PARTIELLE, OCCUPEE)
+    # u additionnes la capacité des tables OCCUPEE, pas les places réellement occupées.
     places_occupees = db.query(
-        func.coalesce(func.sum(Table.capacity), 0)
+        func.coalesce(func.sum(Table.places_occupees), 0)
     ).filter(
-        Table.restaurant_id == restaurant_id, 
-        Table.status == "OCCUPEE"
+        Table.restaurant_id == restaurant_id
     ).scalar()
 
+    # Places libres = capacity - places_occupees par table
     # 4. 1 places_libres
     places_libres = db.query(
-        func.coalesce(func.sum(Table.capacity), 0)
+        func.coalesce(
+            func.sum(Table.capacity - func.coalesce(Table.places_occupees, 0)),
+            0
+        )
     ).filter(
         Table.restaurant_id == restaurant_id,
-        Table.status == "LIBRE"
+        Table.status != "RESERVEE",  # table réservée = 0 place dispo
     ).scalar()
 
-    # 4. 1 places_reservées
+    # Tables réservées : toute la capacité est bloquée
     places_reservées = db.query(
         func.coalesce(func.sum(Table.capacity), 0)
     ).filter(

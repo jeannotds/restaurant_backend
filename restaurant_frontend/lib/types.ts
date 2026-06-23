@@ -38,7 +38,14 @@ export interface ProduitImage {
   id: string;
   produit_id: string;
   url_image: string;
+  public_id?: string | null;
 }
+
+export type ImageReplacement = {
+  imageId: string;
+  publicId: string;
+  file: File;
+};
 
 export interface Produit {
   id: string;

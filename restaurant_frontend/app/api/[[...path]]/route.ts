@@ -45,7 +45,7 @@ async function proxy(
   if (contentType) headers.set("content-type", contentType);
 
   const hasBody = request.method !== "GET" && request.method !== "HEAD";
-  const body = hasBody ? await request.text() : undefined;
+  const body = hasBody ? await request.arrayBuffer() : undefined;
 
   const res = await fetchBackend(backendUrl, {
     method: request.method,

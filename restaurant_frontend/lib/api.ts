@@ -1,3 +1,5 @@
+import type { ImageReplacement, ProduitImage } from "@/lib/types";
+
 const REQUEST_TIMEOUT_MS = 20_000;
 
 function isLocalhostUrl(url: string): boolean {
@@ -40,13 +42,17 @@ async function request<T>(
   const url = `${resolveApiUrl()}${path}`;
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  const isFormData =
+    typeof FormData !== "undefined" && options.body instanceof FormData;
 
   try {
     const res = await fetch(url, {
       ...options,
       signal: controller.signal,
       headers: {
-        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...(options.body && !isFormData
+          ? { "Content-Type": "application/json" }
+          : {}),
         ...options.headers,
       },
     });
@@ -88,6 +94,60 @@ export const api = {
   put: <T>(path: string, body: unknown) =>
     request<T>(path, { method: "PUT", body: JSON.stringify(body) }),
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  upload: <T>(path: string, file: File, fieldName = "file") => {
+    const formData = new FormData();
+    formData.append(fieldName, file);
+    return request<T>(path, { method: "POST", body: formData });
+  },
+  uploadPut: <T>(
+    path: string,
+    file: File,
+    extraFields?: Record<string, string>,
+  ) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    if (extraFields) {
+      Object.entries(extraFields).forEach(([key, value]) => {
+        formData.append(key, value);
+      });
+    }
+    return request<T>(path, { method: "PUT", body: formData });
+  },
 };
+
+export async function uploadProduitImages(
+  produitId: string,
+  files: File[],
+): Promise<void> {
+  for (const file of files) {
+    await api.upload(`/produits/${produitId}/images`, file);
+  }
+}
+
+export async function replaceProduitImage(
+  produitId: string,
+  replacement: ImageReplacement,
+): Promise<ProduitImage> {
+  return api.uploadPut<ProduitImage>(
+    `/produits/${produitId}/images/${replacement.imageId}`,
+    replacement.file,
+    { public_id: replacement.publicId },
+  );
+}
+
+export async function syncProduitImagesOnUpdate(
+  produitId: string,
+  options: {
+    replacements: ImageReplacement[];
+    newFiles: File[];
+  },
+): Promise<void> {
+  for (const replacement of options.replacements) {
+    await replaceProduitImage(produitId, replacement);
+  }
+  if (options.newFiles.length > 0) {
+    await uploadProduitImages(produitId, options.newFiles);
+  }
+}
 
 export { ApiError, resolveApiUrl as getApiUrl };

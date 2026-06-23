@@ -2,9 +2,10 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, syncProduitImagesOnUpdate, uploadProduitImages } from "@/lib/api";
 import { formatPrice } from "@/lib/format";
-import type { Category, Produit } from "@/lib/types";
+import type { Category, ImageReplacement, Produit } from "@/lib/types";
+import { ProductImageField } from "@/components/admin/ProductImageField";
 import { Button } from "@/components/ui/Button";
 import { Input, Select, Textarea } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -17,7 +18,6 @@ type FormState = {
   price: string;
   disponible: string;
   categorie_id: string;
-  images: string;
 };
 
 export function RestaurantProductsTab({
@@ -30,16 +30,18 @@ export function RestaurantProductsTab({
   const [items, setItems] = useState<Produit[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Produit | null>(null);
   const [error, setError] = useState("");
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [replacements, setReplacements] = useState<ImageReplacement[]>([]);
   const [form, setForm] = useState<FormState>({
     nom: "",
     description: "",
     price: "",
     disponible: "true",
     categorie_id: "",
-    images: "",
   });
 
   function load() {
@@ -66,26 +68,28 @@ export function RestaurantProductsTab({
 
   function openCreate() {
     setEditing(null);
+    setPendingFiles([]);
+    setReplacements([]);
     setForm({
       nom: "",
       description: "",
       price: "",
       disponible: "true",
       categorie_id: categories[0]?.id ?? "",
-      images: "",
     });
     setOpen(true);
   }
 
   function openEdit(prod: Produit) {
     setEditing(prod);
+    setPendingFiles([]);
+    setReplacements([]);
     setForm({
       nom: prod.nom,
       description: prod.description ?? "",
       price: String(prod.price),
       disponible: String(prod.disponible),
       categorie_id: prod.categorie_id,
-      images: prod.images.map((i) => i.url_image).join("\n"),
     });
     setOpen(true);
   }
@@ -93,10 +97,7 @@ export function RestaurantProductsTab({
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError("");
-    const imageList = form.images
-      .split("\n")
-      .map((u) => u.trim())
-      .filter(Boolean);
+    setSubmitting(true);
     const payload = {
       nom: form.nom,
       description: form.description || null,
@@ -104,19 +105,29 @@ export function RestaurantProductsTab({
       disponible: form.disponible === "true",
       categorie_id: form.categorie_id,
       restaurant_id: restaurantId,
-      images: imageList.length > 0 ? imageList : null,
     };
     try {
       if (editing) {
         await api.put(`/produits/${editing.id}`, payload);
+        await syncProduitImagesOnUpdate(editing.id, {
+          replacements,
+          newFiles: pendingFiles,
+        });
       } else {
-        await api.post("/produits/", payload);
+        const created = await api.post<Produit>("/produits/", payload);
+        if (pendingFiles.length > 0) {
+          await uploadProduitImages(created.id, pendingFiles);
+        }
       }
       setOpen(false);
+      setPendingFiles([]);
+      setReplacements([]);
       load();
       onDataChange?.();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Erreur inconnue");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -329,18 +340,25 @@ export function RestaurantProductsTab({
               ]}
             />
           </div>
-          <Textarea
-            label="URLs images (une par ligne)"
-            placeholder="https://example.com/image.jpg"
-            value={form.images}
-            onChange={(e) => setForm({ ...form, images: e.target.value })}
+          <ProductImageField
+            existingImages={editing?.images}
+            files={pendingFiles}
+            onFilesChange={setPendingFiles}
+            replacements={replacements}
+            onReplacementsChange={setReplacements}
           />
           {error && <p className="text-sm text-danger">{error}</p>}
           <div className="flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Annuler
             </Button>
-            <Button type="submit">{editing ? "Enregistrer" : "Créer"}</Button>
+            <Button type="submit" disabled={submitting}>
+              {submitting
+                ? "Enregistrement..."
+                : editing
+                  ? "Enregistrer"
+                  : "Créer"}
+            </Button>
           </div>
         </form>
       </Modal>

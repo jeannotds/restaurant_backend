@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { LogOut, MapPin, Phone } from "lucide-react";
 import { api, endOccupation } from "@/lib/api";
 import type {
+  AuthUserResponse,
   Category,
   Commande,
   Produit,
@@ -19,6 +20,10 @@ import {
   setClientSession,
   type ClientSession,
 } from "@/lib/client-session";
+import {
+  getAuthUserForRestaurant,
+  setAuthUser,
+} from "@/lib/auth-session";
 import { ClientHeader } from "@/components/client/ClientHeader";
 import {
   ClientTabBar,
@@ -30,6 +35,7 @@ import { CategoriesView } from "@/components/client/CategoriesView";
 import { CartPanel } from "@/components/client/CartPanel";
 import { AccessCodeModal } from "@/components/client/AccessCodeModal";
 import { LeaveTableConfirmModal } from "@/components/client/LeaveTableConfirmModal";
+import { SignupModal } from "@/components/client/SignupModal";
 import { StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
@@ -53,6 +59,8 @@ export default function RestaurantClientPage() {
   const [leaving, setLeaving] = useState(false);
   const [joinBlockedMessage, setJoinBlockedMessage] = useState("");
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
+  const [authUser, setAuthUserState] = useState<AuthUserResponse | null>(null);
+  const [signupOpen, setSignupOpen] = useState(false);
 
   const loadData = useCallback(() => {
     return Promise.all([
@@ -98,7 +106,13 @@ export default function RestaurantClientPage() {
     } else {
       setSession(stored);
     }
+    setAuthUserState(getAuthUserForRestaurant(restaurantId));
   }, [restaurantId]);
+
+  function handleSignupSuccess(user: AuthUserResponse) {
+    setAuthUser(user);
+    setAuthUserState(user);
+  }
 
   function handleJoinSuccess(result: TableJoinResponse) {
     const newSession: ClientSession = {
@@ -116,6 +130,11 @@ export default function RestaurantClientPage() {
   }
 
   function openJoinModal(table?: Table) {
+    if (!authUser) {
+      setSignupOpen(true);
+      return;
+    }
+
     if (session) {
       if (table && table.id === session.tableId) {
         setJoinBlockedMessage(
@@ -225,7 +244,9 @@ export default function RestaurantClientPage() {
         subtitle={
           hasSession
             ? `Table ${session.tableNumero} · ${session.nombreDePlaces} pers. · Connecté`
-            : "Sélectionnez une table pour commander"
+            : authUser
+              ? `Compte : ${authUser.prenom ? `${authUser.prenom} ` : ""}${authUser.nom}`
+              : "Créez un compte pour réserver une place"
         }
         backHref="/"
         action={
@@ -288,7 +309,19 @@ export default function RestaurantClientPage() {
           </div>
         )}
 
-        {!hasSession && activeTab !== "tables" && (
+        {!authUser && (
+          <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm text-secondary">
+            <p className="mb-2">
+              Créez un compte pour vous abonner à ce restaurant et réserver une
+              place.
+            </p>
+            <Button size="sm" onClick={() => setSignupOpen(true)}>
+              Créer mon compte
+            </Button>
+          </div>
+        )}
+
+        {authUser && !hasSession && activeTab !== "tables" && (
           <div className="mb-4 rounded-xl border border-warning/40 bg-warning/10 p-3 text-sm text-warning">
             Connectez-vous à une table via l&apos;onglet{" "}
             <button
@@ -366,8 +399,16 @@ export default function RestaurantClientPage() {
         cartCount={cartCount}
       />
 
+      <SignupModal
+        open={signupOpen}
+        restaurantId={restaurantId}
+        restaurantName={restaurant.nom}
+        onClose={() => setSignupOpen(false)}
+        onSuccess={handleSignupSuccess}
+      />
+
       <AccessCodeModal
-        open={accessCodeOpen && !session}
+        open={accessCodeOpen && !session && !!authUser}
         tables={tables}
         preselectedTable={joinTargetTable}
         blocked={!!session}

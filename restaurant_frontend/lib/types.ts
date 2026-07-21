@@ -108,3 +108,22 @@ export type CommandeStatut =
   | "SERVIE"
   | "PAYEE"
   | "ANNULEE";
+
+export interface AuthUserCreate {
+  nom: string;
+  prenom?: string | null;
+  email?: string | null;
+  telephone?: string | null;
+  password: string;
+  restaurant_id?: string | null;
+}
+
+export interface AuthUserResponse {
+  id: string;
+  nom: string;
+  prenom?: string | null;
+  email?: string | null;
+  telephone?: string | null;
+  restaurant_id?: string | null;
+  is_active: boolean;
+}

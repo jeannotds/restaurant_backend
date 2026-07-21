@@ -1,4 +1,6 @@
 import type {
+  AuthUserCreate,
+  AuthUserResponse,
   ImageReplacement,
   ProduitImage,
   TableEndOccupationResponse,
@@ -64,14 +66,23 @@ async function request<T>(
     });
 
     if (!res.ok) {
-      let detail = res.statusText;
+      let detail: unknown = res.statusText;
       try {
         const body = await res.json();
         detail = body.detail ?? detail;
       } catch {
         // ignore
       }
-      throw new ApiError(String(detail), res.status);
+      const message = Array.isArray(detail)
+        ? detail
+            .map((item) =>
+              typeof item === "object" && item && "msg" in item
+                ? String((item as { msg: string }).msg)
+                : String(item),
+            )
+            .join(" · ")
+        : String(detail);
+      throw new ApiError(message, res.status);
     }
 
     if (res.status === 204) return undefined as T;
@@ -170,6 +181,12 @@ export async function endOccupation(
     `/tables/occupations/${occupationId}/end`,
     {},
   );
+}
+
+export async function signup(
+  data: AuthUserCreate,
+): Promise<AuthUserResponse> {
+  return api.post<AuthUserResponse>("/auth/signup", data);
 }
 
 export { ApiError, resolveApiUrl as getApiUrl };

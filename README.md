@@ -26,6 +26,7 @@ restaurant-backend/
     env.py             ← connexion à la BDD
   alembic.ini          ← config
 
+
 3. Configurer alembic/env.py
 Pointer vers ton engine et importer tous tes modèles pour l’autogenerate :
 
@@ -65,3 +66,8 @@ alembic current      # où tu en es
 alembic history      # toutes les migrations (appliquées ou non)
 alembic upgrade head # appliquer les migrations en attente
 alembic downgrade -1 # annuler la dernière migration
+
+<!-- HASH PASSWORD -->
+pip install "passlib[bcrypt]"
+ou
+pip install "pwdlib[argon2]"

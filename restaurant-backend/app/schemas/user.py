@@ -10,17 +10,16 @@ class AuthUserCreate(BaseModel):
     telephone: Optional[str] = None
     password: str
     restaurant_id: Optional[UUID] = None
-    is_active: Optional[bool] = True
 
 
 class AuthUserReponse(BaseModel):
     id: UUID
+    nom: str
     prenom: Optional[str] = None
     email: Optional[str] = None
     telephone: Optional[str] = None
-    password: str
     restaurant_id: Optional[UUID] = None
-    is_active: Optional[bool] = False
+    is_active: bool
 
     class Config:
         from_attributes = True

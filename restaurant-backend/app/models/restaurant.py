@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from app.core.database import Base
 
 class Restaurant(Base):
@@ -31,3 +32,5 @@ class Restaurant(Base):
   created_at = Column(
     DateTime, default=datetime.now, nullable=False,
   )
+
+  users = relationship("User", back_populates="restaurant")

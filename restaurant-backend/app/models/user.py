@@ -54,7 +54,8 @@ class User(Base):
       nullable=True,
     )
 
-    restaurant = relationship("User", back_populates="restaurant")
+    # restaurant = relationship("User", back_populates="restaurant")
+    restaurant = relationship("Restaurant", back_populates="users")
 
     create_at = Column(
       DateTime,

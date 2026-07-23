@@ -14,6 +14,8 @@ from app.models.produit import Produit
 from app.models.produit_image import ProduitImage
 from app.models.category import Category
 from app.models.commande_item import CommandeItem
+from app.models.user import User
+# from app.models.user_restaurant_history import UserRestaurantHistory
 
 # confifigue alembic
 

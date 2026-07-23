@@ -72,6 +72,9 @@ export default function RestaurantClientPage() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [switchingRestaurant, setSwitchingRestaurant] = useState(false);
   const [switchError, setSwitchError] = useState("");
+  const [linkedRestaurantName, setLinkedRestaurantName] = useState<string | null>(
+    null,
+  );
 
   const canSwitchRestaurant =
     !!loggedInUser &&
@@ -135,6 +138,33 @@ export default function RestaurantClientPage() {
     setAuthUserState(restaurantUser);
     setSwitchError("");
   }, [restaurantId]);
+
+  useEffect(() => {
+    const linkedId = (authUser ?? loggedInUser)?.restaurant_id;
+    if (!linkedId) {
+      setLinkedRestaurantName(null);
+      return;
+    }
+
+    if (authUser && linkedId === restaurantId && restaurant) {
+      setLinkedRestaurantName(restaurant.nom);
+      return;
+    }
+
+    let cancelled = false;
+    api
+      .get<Restaurant>(`/restaurants/${linkedId}`)
+      .then((r) => {
+        if (!cancelled) setLinkedRestaurantName(r.nom);
+      })
+      .catch(() => {
+        if (!cancelled) setLinkedRestaurantName(null);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authUser, loggedInUser, restaurantId, restaurant]);
 
   function handleSignupSuccess(user: AuthUserResponse) {
     setAuthUser(user);
@@ -378,11 +408,11 @@ export default function RestaurantClientPage() {
         title={restaurant.nom}
         subtitle={
           hasSession
-            ? `Table ${session.tableNumero} · ${session.nombreDePlaces} pers. · Connecté`
+            ? `Table ${session.tableNumero} · ${session.nombreDePlaces} pers. · ${linkedRestaurantName ?? restaurant.nom}`
             : authUser
-              ? `Compte : ${authUser.prenom ? `${authUser.prenom} ` : ""}${authUser.nom}`
+              ? `Compte : ${authUser.prenom ? `${authUser.prenom} ` : ""}${authUser.nom}${linkedRestaurantName ? ` · ${linkedRestaurantName}` : ""}`
               : canSwitchRestaurant
-                ? `Connecté ailleurs · ${loggedInUser?.prenom ? `${loggedInUser.prenom} ` : ""}${loggedInUser?.nom}`
+                ? `Restaurant actuel : ${linkedRestaurantName ?? "…"}${loggedInUser ? ` · ${loggedInUser.prenom ? `${loggedInUser.prenom} ` : ""}${loggedInUser.nom}` : ""}`
                 : "Créez un compte pour réserver une place"
         }
         backHref="/"
@@ -627,9 +657,6 @@ export default function RestaurantClientPage() {
         <ProfileModal
           open={profileOpen}
           user={profileUser}
-          restaurantName={
-            authUser ? restaurant.nom : undefined
-          }
           onClose={() => setProfileOpen(false)}
           onLogout={handleLogout}
         />

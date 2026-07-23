@@ -53,7 +53,9 @@ export default function HomePage() {
         title="Restaurant QR"
         subtitle={
           authUser
-            ? `Compte : ${authUser.prenom ? `${authUser.prenom} ` : ""}${authUser.nom}`
+            ? currentRestaurant
+              ? `${authUser.prenom ? `${authUser.prenom} ` : ""}${authUser.nom} · ${currentRestaurant.nom}`
+              : `Compte : ${authUser.prenom ? `${authUser.prenom} ` : ""}${authUser.nom}`
             : "Choisissez votre restaurant"
         }
         action={

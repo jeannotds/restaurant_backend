@@ -1,13 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Mail, Phone, UserRound } from "lucide-react";
-import type { AuthUserResponse } from "@/lib/types";
+import type { AuthUserResponse, Restaurant } from "@/lib/types";
+import { api } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 
 interface ProfileModalProps {
   open: boolean;
   user: AuthUserResponse;
+  /** Nom déjà connu (optionnel) — sinon résolu via user.restaurant_id */
   restaurantName?: string;
   onClose: () => void;
   onLogout: () => void;
@@ -20,7 +23,52 @@ export function ProfileModal({
   onClose,
   onLogout,
 }: ProfileModalProps) {
+  const [resolvedRestaurantName, setResolvedRestaurantName] = useState<
+    string | null
+  >(restaurantName ?? null);
+  const [loadingRestaurant, setLoadingRestaurant] = useState(false);
+
   const fullName = `${user.prenom ? `${user.prenom} ` : ""}${user.nom}`.trim();
+
+  useEffect(() => {
+    if (!open) return;
+
+    if (restaurantName) {
+      setResolvedRestaurantName(restaurantName);
+      return;
+    }
+
+    if (!user.restaurant_id) {
+      setResolvedRestaurantName(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingRestaurant(true);
+    api
+      .get<Restaurant>(`/restaurants/${user.restaurant_id}`)
+      .then((restaurant) => {
+        if (!cancelled) setResolvedRestaurantName(restaurant.nom);
+      })
+      .catch(() => {
+        if (!cancelled) setResolvedRestaurantName(null);
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingRestaurant(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, user.restaurant_id, restaurantName]);
+
+  const currentRestaurantLabel = !user.restaurant_id
+    ? "Aucun restaurant lié"
+    : loadingRestaurant
+      ? "Chargement du restaurant..."
+      : resolvedRestaurantName
+        ? `Restaurant actuel : ${resolvedRestaurantName}`
+        : "Restaurant actuel introuvable";
 
   return (
     <Modal open={open} title="Mon profil" onClose={onClose}>
@@ -31,11 +79,7 @@ export function ProfileModal({
           </div>
           <div className="min-w-0">
             <p className="truncate font-semibold text-foreground">{fullName}</p>
-            <p className="text-sm text-muted">
-              {restaurantName
-                ? `Restaurant actuel : ${restaurantName}`
-                : "Aucun restaurant lié"}
-            </p>
+            <p className="text-sm text-muted">{currentRestaurantLabel}</p>
           </div>
         </div>
 

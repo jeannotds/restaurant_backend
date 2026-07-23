@@ -127,3 +127,14 @@ export interface AuthUserResponse {
   restaurant_id?: string | null;
   is_active: boolean;
 }
+
+export interface AuthUserLogin {
+  email?: string | null;
+  telephone?: string | null;
+  password: string;
+}
+
+export interface AuthUserChangeRestaurant {
+  user_id: string;
+  restaurant_id: string;
+}

@@ -1,15 +1,26 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { UserRound } from "lucide-react";
 import { api, ApiError } from "@/lib/api";
-import type { Restaurant } from "@/lib/types";
+import type { AuthUserResponse, Restaurant } from "@/lib/types";
+import { clearAuthUser, getAuthUser } from "@/lib/auth-session";
+import { clearClientSession } from "@/lib/client-session";
 import { ClientHeader } from "@/components/client/ClientHeader";
 import { RestaurantCard } from "@/components/client/RestaurantCard";
+import { ProfileModal } from "@/components/client/ProfileModal";
+import { Button } from "@/components/ui/Button";
 
 export default function HomePage() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [authUser, setAuthUserState] = useState<AuthUserResponse | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  useEffect(() => {
+    setAuthUserState(getAuthUser());
+  }, []);
 
   useEffect(() => {
     api
@@ -25,11 +36,40 @@ export default function HomePage() {
       .finally(() => setLoading(false));
   }, []);
 
+  function handleLogout() {
+    clearAuthUser();
+    clearClientSession();
+    setAuthUserState(null);
+    setProfileOpen(false);
+  }
+
+  const currentRestaurant = authUser?.restaurant_id
+    ? restaurants.find((r) => r.id === authUser.restaurant_id)
+    : undefined;
+
   return (
     <div className="min-h-screen bg-background">
       <ClientHeader
         title="Restaurant QR"
-        subtitle="Choisissez votre restaurant"
+        subtitle={
+          authUser
+            ? `Compte : ${authUser.prenom ? `${authUser.prenom} ` : ""}${authUser.nom}`
+            : "Choisissez votre restaurant"
+        }
+        action={
+          authUser ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="px-2"
+              onClick={() => setProfileOpen(true)}
+              aria-label="Mon profil"
+            >
+              <UserRound size={16} />
+              <span className="hidden sm:inline">Profil</span>
+            </Button>
+          ) : undefined
+        }
       />
 
       <main className="mx-auto max-w-3xl px-3 py-5 sm:px-4 sm:py-6">
@@ -59,6 +99,16 @@ export default function HomePage() {
           </div>
         )}
       </main>
+
+      {authUser && (
+        <ProfileModal
+          open={profileOpen}
+          user={authUser}
+          restaurantName={currentRestaurant?.nom}
+          onClose={() => setProfileOpen(false)}
+          onLogout={handleLogout}
+        />
+      )}
     </div>
   );
 }

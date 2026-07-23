@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import { LogOut, MapPin, Phone } from "lucide-react";
-import { api, endOccupation } from "@/lib/api";
+import { ArrowRightLeft, LogOut, MapPin, Phone, UserRound } from "lucide-react";
+import { api, changeRestaurant, endOccupation } from "@/lib/api";
 import type {
   AuthUserResponse,
   Category,
@@ -21,6 +21,8 @@ import {
   type ClientSession,
 } from "@/lib/client-session";
 import {
+  clearAuthUser,
+  getAuthUser,
   getAuthUserForRestaurant,
   setAuthUser,
 } from "@/lib/auth-session";
@@ -36,6 +38,8 @@ import { CartPanel } from "@/components/client/CartPanel";
 import { AccessCodeModal } from "@/components/client/AccessCodeModal";
 import { LeaveTableConfirmModal } from "@/components/client/LeaveTableConfirmModal";
 import { SignupModal } from "@/components/client/SignupModal";
+import { LoginModal } from "@/components/client/LoginModal";
+import { ProfileModal } from "@/components/client/ProfileModal";
 import { StatCard } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 
@@ -60,7 +64,19 @@ export default function RestaurantClientPage() {
   const [joinBlockedMessage, setJoinBlockedMessage] = useState("");
   const [leaveConfirmOpen, setLeaveConfirmOpen] = useState(false);
   const [authUser, setAuthUserState] = useState<AuthUserResponse | null>(null);
+  const [loggedInUser, setLoggedInUser] = useState<AuthUserResponse | null>(
+    null,
+  );
   const [signupOpen, setSignupOpen] = useState(false);
+  const [loginOpen, setLoginOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [switchingRestaurant, setSwitchingRestaurant] = useState(false);
+  const [switchError, setSwitchError] = useState("");
+
+  const canSwitchRestaurant =
+    !!loggedInUser &&
+    !authUser &&
+    loggedInUser.restaurant_id !== restaurantId;
 
   const loadData = useCallback(() => {
     return Promise.all([
@@ -106,12 +122,108 @@ export default function RestaurantClientPage() {
     } else {
       setSession(stored);
     }
+    const sessionUser = getAuthUser();
+    setLoggedInUser(sessionUser);
     setAuthUserState(getAuthUserForRestaurant(restaurantId));
+    setSwitchError("");
   }, [restaurantId]);
 
   function handleSignupSuccess(user: AuthUserResponse) {
     setAuthUser(user);
     setAuthUserState(user);
+    setLoggedInUser(user);
+  }
+
+  async function handleLoginSuccess(user: AuthUserResponse) {
+    if (user.restaurant_id && user.restaurant_id !== restaurantId) {
+      setLoggedInUser(user);
+      setAuthUserState(null);
+      try {
+        const switched = await changeRestaurant({
+          user_id: user.id,
+          restaurant_id: restaurantId,
+        });
+        setAuthUser(switched);
+        setAuthUserState(switched);
+        setLoggedInUser(switched);
+        clearClientSession();
+        setSession(null);
+        setCart([]);
+      } catch {
+        setAuthUser(user);
+        setLoggedInUser(user);
+        setSwitchError(
+          "Connecté, mais impossible de passer à ce restaurant. Réessayez.",
+        );
+      }
+      return;
+    }
+
+    if (!user.restaurant_id) {
+      try {
+        const switched = await changeRestaurant({
+          user_id: user.id,
+          restaurant_id: restaurantId,
+        });
+        setAuthUser(switched);
+        setAuthUserState(switched);
+        setLoggedInUser(switched);
+      } catch {
+        setAuthUser(user);
+        setAuthUserState(null);
+        setLoggedInUser(user);
+        setSwitchError(
+          "Connecté, mais impossible de lier ce restaurant. Réessayez.",
+        );
+      }
+      return;
+    }
+
+    setAuthUser(user);
+    setAuthUserState(user);
+    setLoggedInUser(user);
+  }
+  async function handleSwitchRestaurant(options?: {
+    openJoinAfter?: boolean;
+    table?: Table;
+  }) {
+    if (!loggedInUser) return;
+    setSwitchingRestaurant(true);
+    setSwitchError("");
+    try {
+      const user = await changeRestaurant({
+        user_id: loggedInUser.id,
+        restaurant_id: restaurantId,
+      });
+      setAuthUser(user);
+      setAuthUserState(user);
+      setLoggedInUser(user);
+      clearClientSession();
+      setSession(null);
+      setCart([]);
+      if (options?.openJoinAfter) {
+        setJoinBlockedMessage("");
+        setJoinTargetTable(options.table ?? null);
+        setAccessCodeOpen(true);
+      }
+    } catch {
+      setSwitchError(
+        "Impossible de passer à ce restaurant. Réessayez.",
+      );
+    } finally {
+      setSwitchingRestaurant(false);
+    }
+  }
+
+  function handleLogout() {
+    clearAuthUser();
+    clearClientSession();
+    setAuthUserState(null);
+    setLoggedInUser(null);
+    setSession(null);
+    setCart([]);
+    setProfileOpen(false);
+    setSwitchError("");
   }
 
   function handleJoinSuccess(result: TableJoinResponse) {
@@ -131,6 +243,10 @@ export default function RestaurantClientPage() {
 
   function openJoinModal(table?: Table) {
     if (!authUser) {
+      if (canSwitchRestaurant) {
+        handleSwitchRestaurant({ openJoinAfter: true, table });
+        return;
+      }
       setSignupOpen(true);
       return;
     }
@@ -216,6 +332,7 @@ export default function RestaurantClientPage() {
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantite, 0);
   const hasSession = !!session;
+  const profileUser = authUser ?? loggedInUser;
 
   if (loading) {
     return (
@@ -246,21 +363,37 @@ export default function RestaurantClientPage() {
             ? `Table ${session.tableNumero} · ${session.nombreDePlaces} pers. · Connecté`
             : authUser
               ? `Compte : ${authUser.prenom ? `${authUser.prenom} ` : ""}${authUser.nom}`
-              : "Créez un compte pour réserver une place"
+              : canSwitchRestaurant
+                ? `Connecté ailleurs · ${loggedInUser?.prenom ? `${loggedInUser.prenom} ` : ""}${loggedInUser?.nom}`
+                : "Créez un compte pour réserver une place"
         }
         backHref="/"
         action={
-          hasSession ? (
-            <Button
-              variant="ghost"
-              className="hidden shrink-0 text-xs sm:inline-flex"
-              onClick={requestLeaveTable}
-              disabled={leaving}
-            >
-              <LogOut size={14} />
-              {leaving ? "..." : "Quitter"}
-            </Button>
-          ) : undefined
+          <div className="flex shrink-0 items-center gap-1">
+            {profileUser && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="px-2"
+                onClick={() => setProfileOpen(true)}
+                aria-label="Mon profil"
+              >
+                <UserRound size={16} />
+                <span className="hidden sm:inline">Profil</span>
+              </Button>
+            )}
+            {hasSession && (
+              <Button
+                variant="ghost"
+                className="hidden text-xs sm:inline-flex"
+                onClick={requestLeaveTable}
+                disabled={leaving}
+              >
+                <LogOut size={14} />
+                {leaving ? "..." : "Quitter"}
+              </Button>
+            )}
+          </div>
         }
       />
 
@@ -309,15 +442,52 @@ export default function RestaurantClientPage() {
           </div>
         )}
 
-        {!authUser && (
+        {canSwitchRestaurant && (
           <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm text-secondary">
             <p className="mb-2">
-              Créez un compte pour vous abonner à ce restaurant et réserver une
-              place.
+              Vous êtes déjà connecté. Passez à{" "}
+              <span className="font-medium text-foreground">
+                {restaurant.nom}
+              </span>{" "}
+              pour réserver une place ici.
             </p>
-            <Button size="sm" onClick={() => setSignupOpen(true)}>
-              Créer mon compte
+            {switchError && (
+              <p className="mb-2 text-sm text-danger">{switchError}</p>
+            )}
+            <Button
+              size="sm"
+              onClick={() => handleSwitchRestaurant()}
+              disabled={switchingRestaurant}
+            >
+              <ArrowRightLeft size={14} />
+              {switchingRestaurant
+                ? "Changement..."
+                : "Passer à ce restaurant"}
             </Button>
+          </div>
+        )}
+
+        {!authUser && !canSwitchRestaurant && (
+          <div className="mb-4 rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm text-secondary">
+            <p className="mb-2">
+              Créez un compte ou connectez-vous pour vous abonner à ce restaurant
+              et réserver une place.
+            </p>
+            {switchError && (
+              <p className="mb-2 text-sm text-danger">{switchError}</p>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" onClick={() => setSignupOpen(true)}>
+                Créer mon compte
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => setLoginOpen(true)}
+              >
+                Se connecter
+              </Button>
+            </div>
           </div>
         )}
 
@@ -405,7 +575,34 @@ export default function RestaurantClientPage() {
         restaurantName={restaurant.nom}
         onClose={() => setSignupOpen(false)}
         onSuccess={handleSignupSuccess}
+        onSwitchToLogin={() => {
+          setSignupOpen(false);
+          setLoginOpen(true);
+        }}
       />
+
+      <LoginModal
+        open={loginOpen}
+        restaurantName={restaurant.nom}
+        onClose={() => setLoginOpen(false)}
+        onSuccess={handleLoginSuccess}
+        onSwitchToSignup={() => {
+          setLoginOpen(false);
+          setSignupOpen(true);
+        }}
+      />
+
+      {profileUser && (
+        <ProfileModal
+          open={profileOpen}
+          user={profileUser}
+          restaurantName={
+            authUser ? restaurant.nom : undefined
+          }
+          onClose={() => setProfileOpen(false)}
+          onLogout={handleLogout}
+        />
+      )}
 
       <AccessCodeModal
         open={accessCodeOpen && !session && !!authUser}

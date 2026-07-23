@@ -35,12 +35,6 @@ export function ClientHeader({
           )}
         </div>
         {action}
-        <Link
-          href="/admin"
-          className="hidden shrink-0 text-xs text-muted underline-offset-2 hover:text-foreground hover:underline sm:inline"
-        >
-          Admin
-        </Link>
       </div>
     </header>
   );

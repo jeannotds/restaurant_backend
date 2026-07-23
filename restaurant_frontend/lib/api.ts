@@ -1,5 +1,7 @@
 import type {
+  AuthUserChangeRestaurant,
   AuthUserCreate,
+  AuthUserLogin,
   AuthUserResponse,
   ImageReplacement,
   ProduitImage,
@@ -187,6 +189,18 @@ export async function signup(
   data: AuthUserCreate,
 ): Promise<AuthUserResponse> {
   return api.post<AuthUserResponse>("/auth/signup", data);
+}
+
+export async function login(
+  data: AuthUserLogin,
+): Promise<AuthUserResponse> {
+  return api.post<AuthUserResponse>("/auth/login", data);
+}
+
+export async function changeRestaurant(
+  data: AuthUserChangeRestaurant,
+): Promise<AuthUserResponse> {
+  return api.put<AuthUserResponse>("/auth/change-restaurant", data);
 }
 
 export { ApiError, resolveApiUrl as getApiUrl };

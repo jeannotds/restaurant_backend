@@ -1,21 +1,20 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { UserPlus } from "lucide-react";
+import { LogIn } from "lucide-react";
 import type { AuthUserResponse } from "@/lib/types";
-import { ApiError, signup } from "@/lib/api";
+import { ApiError, login } from "@/lib/api";
 import { setAuthUser } from "@/lib/auth-session";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
 
-interface SignupModalProps {
+interface LoginModalProps {
   open: boolean;
-  restaurantId: string;
   restaurantName: string;
   onClose: () => void;
   onSuccess: (user: AuthUserResponse) => void;
-  onSwitchToLogin?: () => void;
+  onSwitchToSignup?: () => void;
 }
 
 function formatApiDetail(detail: unknown): string {
@@ -29,19 +28,16 @@ function formatApiDetail(detail: unknown): string {
       )
       .join(" · ");
   }
-  return "Impossible de créer le compte.";
+  return "Impossible de se connecter.";
 }
 
-export function SignupModal({
+export function LoginModal({
   open,
-  restaurantId,
   restaurantName,
   onClose,
   onSuccess,
-  onSwitchToLogin,
-}: SignupModalProps) {
-  const [nom, setNom] = useState("");
-  const [prenom, setPrenom] = useState("");
+  onSwitchToSignup,
+}: LoginModalProps) {
   const [email, setEmail] = useState("");
   const [telephone, setTelephone] = useState("");
   const [password, setPassword] = useState("");
@@ -50,8 +46,6 @@ export function SignupModal({
 
   useEffect(() => {
     if (open) {
-      setNom("");
-      setPrenom("");
       setEmail("");
       setTelephone("");
       setPassword("");
@@ -63,32 +57,24 @@ export function SignupModal({
     e.preventDefault();
     setError("");
 
-    const trimmedNom = nom.trim();
     const trimmedEmail = email.trim();
     const trimmedTelephone = telephone.trim();
 
-    if (!trimmedNom) {
-      setError("Le nom est requis.");
-      return;
-    }
     if (!trimmedEmail && !trimmedTelephone) {
       setError("Indiquez un email ou un téléphone.");
       return;
     }
-    if (password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères.");
+    if (!password) {
+      setError("Le mot de passe est requis.");
       return;
     }
 
     setSubmitting(true);
     try {
-      const user = await signup({
-        nom: trimmedNom,
-        prenom: prenom.trim() || null,
+      const user = await login({
         email: trimmedEmail || null,
         telephone: trimmedTelephone || null,
         password,
-        restaurant_id: restaurantId,
       });
       setAuthUser(user);
       onSuccess(user);
@@ -97,7 +83,7 @@ export function SignupModal({
       if (err instanceof ApiError) {
         setError(formatApiDetail(err.message));
       } else {
-        setError("Impossible de créer le compte.");
+        setError("Impossible de se connecter.");
       }
     } finally {
       setSubmitting(false);
@@ -110,32 +96,15 @@ export function SignupModal({
   }
 
   return (
-    <Modal open={open} title="Créer un compte" onClose={handleClose}>
+    <Modal open={open} title="Se connecter" onClose={handleClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex items-center gap-3 rounded-lg bg-background p-3">
-          <UserPlus size={20} className="shrink-0 text-primary" />
+          <LogIn size={20} className="shrink-0 text-primary" />
           <p className="text-sm text-muted">
-            Créez votre compte pour vous abonner à{" "}
-            <span className="font-medium text-foreground">{restaurantName}</span>{" "}
-            et réserver une place.
+            Connectez-vous pour rejoindre{" "}
+            <span className="font-medium text-foreground">{restaurantName}</span>.
           </p>
         </div>
-
-        <Input
-          label="Nom"
-          placeholder="Ex: Mbula"
-          value={nom}
-          onChange={(e) => setNom(e.target.value)}
-          autoFocus
-          required
-        />
-
-        <Input
-          label="Prénom"
-          placeholder="Ex: Adonai"
-          value={prenom}
-          onChange={(e) => setPrenom(e.target.value)}
-        />
 
         <Input
           label="Email"
@@ -143,6 +112,7 @@ export function SignupModal({
           placeholder="ex: vous@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          autoFocus
         />
 
         <Input
@@ -156,22 +126,21 @@ export function SignupModal({
         <Input
           label="Mot de passe"
           type="password"
-          placeholder="Au moins 6 caractères"
+          placeholder="Votre mot de passe"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          minLength={6}
           error={error}
         />
 
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          {onSwitchToLogin ? (
+          {onSwitchToSignup ? (
             <button
               type="button"
-              onClick={onSwitchToLogin}
+              onClick={onSwitchToSignup}
               className="text-left text-sm text-primary underline"
             >
-              Déjà un compte ? Se connecter
+              Créer un compte
             </button>
           ) : (
             <span />
@@ -181,7 +150,7 @@ export function SignupModal({
               Annuler
             </Button>
             <Button type="submit" disabled={submitting}>
-              {submitting ? "Création..." : "Créer mon compte"}
+              {submitting ? "Connexion..." : "Se connecter"}
             </Button>
           </div>
         </div>

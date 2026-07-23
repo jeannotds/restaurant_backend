@@ -21,5 +21,10 @@ class AuthUserReponse(BaseModel):
     restaurant_id: Optional[UUID] = None
     is_active: bool
 
+class AuthUserLogin(BaseModel):
+    email: Optional[str] = None;
+    telephone: Optional[str] = None;
+    password: str;
+
     class Config:
         from_attributes = True

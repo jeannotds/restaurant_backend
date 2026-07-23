@@ -1,4 +1,4 @@
-from app.schemas.user import AuthUserCreate, AuthUserReponse
+from app.schemas.user import AuthUserCreate, AuthUserReponse, AuthUserLogin
 from fastapi import APIRouter, Depends
 from app.services import auth as auth_service
 from app.core.database import get_db
@@ -13,3 +13,7 @@ router = APIRouter(
 @router.post("/signup", response_model=AuthUserReponse, status_code=201)
 def signup(data: AuthUserCreate, db: Session = Depends(get_db)):
     return auth_service.signup(db, data)
+
+@router.post("/login", response_model=AuthUserReponse, status_code=201)
+def login(data: AuthUserLogin, db: Session = Depends(get_db)):
+    return auth_service.login(db, data)

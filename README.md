@@ -68,6 +68,7 @@ alembic upgrade head # appliquer les migrations en attente
 alembic downgrade -1 # annuler la dernière migration
 
 <!-- HASH PASSWORD -->
-pip install "passlib[bcrypt]"
+pip install "bcrypt==4.0.1"
+<!-- pip install "passlib[bcrypt]" Vieille version -->
 ou
 pip install "pwdlib[argon2]"

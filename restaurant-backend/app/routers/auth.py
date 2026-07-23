@@ -23,8 +23,8 @@ def login(data: AuthUserLogin, db: Session = Depends(get_db)):
 
 
 @router.put("/change-restaurant", response_model=AuthUserReponse, status_code=200)
-def change_restaurant(data: AuthUserChangeRestaurant, db: Session = Depends(get_db)):
-    return auth_service.change_restaurant(db, data)
+def change_restaurant(data: AuthUserChangeRestaurant, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return auth_service.change_restaurant(db, data, current_user)
 
 
 @router.get("/me")

@@ -38,7 +38,5 @@ class AuthUserLogin(BaseModel):
 
 class AuthUserChangeRestaurant(BaseModel):
     restaurant_id: UUID
-    user_id: UUID
-
     class Config:
         from_attributes = True

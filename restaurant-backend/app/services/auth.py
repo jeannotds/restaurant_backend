@@ -4,9 +4,10 @@ from app.models.user import User
 from app.models.restaurant import Restaurant
 from app.core.security import hash_password, verify_password
 from sqlalchemy import or_
-from fastapi import HTTPException
+from fastapi import HTTPException, Depends
 from app.schemas.user import AuthUserLogin
 from app.core.jwt import create_access_token, decode_access_token
+from app.dependencies.auth import get_current_user
 
 
 def signup(db: Session, data: AuthUserCreate):
@@ -51,12 +52,13 @@ def signup(db: Session, data: AuthUserCreate):
         is_active=True,
     )
 
-    token = create_access_token(
-        {"sub": str(user.id), "email": user.email, "telephone": user.telephone})
-
     db.add(user)
     db.commit()
     db.refresh(user)
+
+    token = create_access_token(
+        {"sub": str(user.id), "email": user.email, "telephone": user.telephone})
+
     return {
         "user": user,
         "access_token": token,
@@ -97,12 +99,10 @@ def login(db: Session, data: AuthUserLogin):
     }
 
 
-def change_restaurant(db: Session, data: AuthUserChangeRestaurant):
-    user = db.query(User).filter(User.id == data.user_id).first()
+def change_restaurant(db: Session, data: AuthUserChangeRestaurant, current_user):
+    user = db.query(User).filter(User.id == current_user.id).first()
     if not user:
         raise HTTPException(status_code=400, detail="User not found")
-    
-    print("Decode token : ", decode_access_token("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJOb25lIiwiZW1haWwiOiJkaWFtYnVzamVhbm5vdEBnbWFpbC5jb20iLCJ0ZWxlcGhvbmUiOm51bGwsImV4cCI6MTc4NDgyMzk3M30.2ETvzcFSQlnSgJOqf0SiWz4i6H0s_mOL98_29kNmQ3c"))
 
     restaurant = db.query(Restaurant).filter(
         Restaurant.id == data.restaurant_id).first()

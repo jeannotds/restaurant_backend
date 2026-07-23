@@ -30,7 +30,7 @@ def get_current_user(
             detail="Token invalide"
         )
 
-    user = db.query(User).filter(
+    user = db.query(User.id, User.nom, User.prenom, User.email, User.telephone, User.restaurant_id, User.is_active).filter(
         User.id == user_id
     ).first()
 

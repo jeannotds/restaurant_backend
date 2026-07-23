@@ -54,6 +54,11 @@ class User(Base):
       nullable=True,
     )
 
+    # access_token = Column(
+    #   String(250),
+    #   nullable=False,
+    # )
+
     # restaurant = relationship("User", back_populates="restaurant")
     restaurant = relationship("Restaurant", back_populates="users")
 

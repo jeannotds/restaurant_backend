@@ -6,6 +6,7 @@ from app.core.security import hash_password, verify_password
 from sqlalchemy import or_
 from fastapi import HTTPException
 from app.schemas.user import AuthUserLogin
+from app.core.jwt import create_access_token
 
 
 def signup(db: Session, data: AuthUserCreate):
@@ -21,11 +22,8 @@ def signup(db: Session, data: AuthUserCreate):
     if data.telephone:
         filters.append(User.telephone == data.telephone)
 
-    for filter in filters:
-        print('filter : ', filter)
-
-    existing = db.query(User).filter(or_(*filters)).first()
-    if existing:
+    existing_user = db.query(User).filter(or_(*filters)).first()
+    if existing_user:
         raise HTTPException(
             status_code=400,
             detail="Email ou téléphone déjà utilisé",
@@ -53,10 +51,16 @@ def signup(db: Session, data: AuthUserCreate):
         is_active=True,
     )
 
+    token = create_access_token(
+        {"sub": str(user.id), "email": user.email, "telephone": user.telephone})
+
     db.add(user)
     db.commit()
     db.refresh(user)
-    return user
+    return {
+        "user": user,
+        "access_token": token,
+    }
 
 
 def login(db: Session, data: AuthUserLogin):
@@ -81,7 +85,16 @@ def login(db: Session, data: AuthUserLogin):
         raise HTTPException(
             status_code=400, detail="Password or email/telephone incorrect")
 
-    return user
+    token = create_access_token(
+        {"sub": str(user.id), "email": user.email, "telephone": user.telephone})
+
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "user": user,
+        "access_token": token,
+    }
 
 
 def change_restaurant(db: Session, data: AuthUserChangeRestaurant):

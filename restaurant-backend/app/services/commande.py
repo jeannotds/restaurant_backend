@@ -22,6 +22,16 @@ def create_commande(db: Session, data: CommandeCreate):
     if not occupation:
         raise HTTPException(status_code=403, detail="Occupation non trouvée")
 
+    table = db.query(Table).filter(Table.id == data.table_id).first()
+    if not table:
+        raise HTTPException(status_code=404, detail="Table introuvable")
+
+    if occupation.restaurant_id != table.restaurant_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Occupation invalide pour ce restaurant",
+        )
+
     commande = Commande(
         table_id=data.table_id,
         numero_commande=data.numero_commande,
@@ -41,6 +51,12 @@ def create_commande(db: Session, data: CommandeCreate):
 
       if not produit:
         raise HTTPException(status_code=403, detail=f"Produit {item.produit_id} non trouvé")
+
+      if produit.restaurant_id != table.restaurant_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Impossible de commander un produit d'un autre restaurant",
+        )
 
       sous_total = produit.price * item.quantite
 

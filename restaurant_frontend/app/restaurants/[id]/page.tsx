@@ -116,15 +116,23 @@ export default function RestaurantClientPage() {
 
   useEffect(() => {
     const stored = getSessionForRestaurant(restaurantId);
+    const sessionUser = getAuthUser();
+    const restaurantUser = getAuthUserForRestaurant(restaurantId);
+
     if (stored && !stored.occupationId) {
       clearClientSession();
       setSession(null);
+    } else if (stored && !restaurantUser) {
+      // Session table d'un autre compte / restaurant : bloquer la commande
+      clearClientSession();
+      setSession(null);
+      setCart([]);
     } else {
       setSession(stored);
     }
-    const sessionUser = getAuthUser();
+
     setLoggedInUser(sessionUser);
-    setAuthUserState(getAuthUserForRestaurant(restaurantId));
+    setAuthUserState(restaurantUser);
     setSwitchError("");
   }, [restaurantId]);
 
@@ -297,6 +305,8 @@ export default function RestaurantClientPage() {
   }
 
   function addToCart(produit: Produit) {
+    if (!authUser || !session) return;
+    if (produit.restaurant_id !== restaurantId) return;
     setCart((prev) => {
       const existing = prev.find((c) => c.produit.id === produit.id);
       if (existing) {
@@ -311,6 +321,7 @@ export default function RestaurantClientPage() {
   }
 
   function removeFromCart(produitId: string) {
+    if (!authUser || !session) return;
     setCart((prev) => {
       const existing = prev.find((c) => c.produit.id === produitId);
       if (!existing) return prev;
@@ -326,12 +337,19 @@ export default function RestaurantClientPage() {
   }
 
   function addById(produitId: string) {
+    if (!authUser || !session) return;
     const produit = produits.find((p) => p.id === produitId);
     if (produit) addToCart(produit);
   }
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantite, 0);
   const hasSession = !!session;
+  const canOrder = !!authUser && hasSession;
+  const orderBlockedMessage = !authUser
+    ? canSwitchRestaurant
+      ? "Passez à ce restaurant pour commander"
+      : "Connectez-vous à ce restaurant pour commander"
+    : "Connectez-vous à une table pour commander";
   const profileUser = authUser ?? loggedInUser;
 
   if (loading) {
@@ -511,7 +529,8 @@ export default function RestaurantClientPage() {
             cart={cart}
             onAdd={addToCart}
             onRemove={removeFromCart}
-            canOrder={hasSession}
+            canOrder={canOrder}
+            orderBlockedMessage={orderBlockedMessage}
           />
         )}
 
@@ -535,12 +554,12 @@ export default function RestaurantClientPage() {
         )}
 
         {activeTab === "order" && (
-          hasSession ? (
+          canOrder ? (
             <CartPanel
               restaurantId={restaurantId}
-              tableId={session.tableId}
-              tableNumero={session.tableNumero}
-              occupationId={session.occupationId}
+              tableId={session!.tableId}
+              tableNumero={session!.tableNumero}
+              occupationId={session!.occupationId}
               cart={cart}
               onAdd={addById}
               onRemove={removeFromCart}
@@ -549,14 +568,26 @@ export default function RestaurantClientPage() {
             />
           ) : (
             <div className="rounded-xl border border-dashed border-border p-10 text-center">
-              <p className="text-muted">
-                Sélectionnez d&apos;abord une table pour passer commande.
-              </p>
+              <p className="text-muted">{orderBlockedMessage}.</p>
               <button
-                onClick={() => setActiveTab("tables")}
+                onClick={() => {
+                  if (!authUser) {
+                    if (canSwitchRestaurant) {
+                      handleSwitchRestaurant();
+                      return;
+                    }
+                    setSignupOpen(true);
+                    return;
+                  }
+                  setActiveTab("tables");
+                }}
                 className="mt-3 text-sm font-medium text-primary underline"
               >
-                Aller aux tables
+                {!authUser
+                  ? canSwitchRestaurant
+                    ? "Passer à ce restaurant"
+                    : "Créer un compte ou se connecter"
+                  : "Aller aux tables"}
               </button>
             </div>
           )

@@ -20,6 +20,7 @@ interface MenuViewProps {
   onAdd: (produit: Produit) => void;
   onRemove: (produitId: string) => void;
   canOrder: boolean;
+  orderBlockedMessage?: string;
 }
 
 export function MenuView({
@@ -29,6 +30,7 @@ export function MenuView({
   onAdd,
   onRemove,
   canOrder,
+  orderBlockedMessage = "Connectez-vous à une table pour commander",
 }: MenuViewProps) {
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
@@ -150,7 +152,7 @@ export function MenuView({
                   </div>
                 ) : (
                   <Badge tone="secondary" className="mt-2">
-                    Connectez-vous à une table pour commander
+                    {orderBlockedMessage}
                   </Badge>
                 )}
               </div>

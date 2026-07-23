@@ -1,4 +1,10 @@
-from app.schemas.user import AuthUserCreate, AuthUserReponse, AuthUserLogin, AuthUserChangeRestaurant
+from app.schemas.user import (
+    AuthUser,
+    AuthUserCreate,
+    AuthUserReponse,
+    AuthUserLogin,
+    AuthUserChangeRestaurant,
+)
 from fastapi import APIRouter, Depends
 from app.services import auth as auth_service
 from app.core.database import get_db
@@ -22,11 +28,14 @@ def login(data: AuthUserLogin, db: Session = Depends(get_db)):
     return auth_service.login(db, data)
 
 
-@router.put("/change-restaurant", response_model=AuthUserReponse, status_code=200)
-def change_restaurant(data: AuthUserChangeRestaurant, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+@router.put("/change-restaurant", response_model=AuthUser, status_code=200)
+def change_restaurant(
+        data: AuthUserChangeRestaurant,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user)):
     return auth_service.change_restaurant(db, data, current_user)
 
 
-@router.get("/me")
+@router.get("/me", response_model=AuthUser)
 def me(current_user: User = Depends(get_current_user)):
     return current_user

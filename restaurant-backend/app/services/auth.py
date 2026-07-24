@@ -6,7 +6,7 @@ from app.core.security import hash_password, verify_password
 from sqlalchemy import or_
 from fastapi import HTTPException, Depends
 from app.schemas.user import AuthUserLogin
-from app.core.jwt import create_access_token, create_refresh_token, decode_access_token
+from app.core.jwt import create_access_token, create_refresh_token, decode_access_token, decode_refresh_token
 from app.dependencies.auth import get_current_user
 
 

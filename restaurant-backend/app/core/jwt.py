@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from dotenv import load_dotenv
 import os
+from fastapi import HTTPException
 
 load_dotenv()
 
@@ -47,6 +48,20 @@ def decode_access_token(token: str):
     try:
         payload = jwt.decode(token, os.getenv("SECRET_KEY"),
                              algorithms=[os.getenv("ALGORITHM")])
+
+        if payload["type"] != "access":
+            raise HTTPException(status_code=401, detail="Invalid access token")
+        return payload
+    except JWTError:
+        return None
+
+def decode_refresh_token(token: str):
+    try:
+        payload = jwt.decode(token, os.getenv("SECRET_KEY"),
+                             algorithms=[os.getenv("ALGORITHM")])
+
+        if payload["type"] != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
         return payload
     except JWTError:
         return None

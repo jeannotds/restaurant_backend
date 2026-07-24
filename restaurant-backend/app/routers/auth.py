@@ -1,7 +1,7 @@
 from app.schemas.user import (
     AuthUser,
     AuthUserCreate,
-    AuthUserReponse,
+    Token,
     AuthUserLogin,
     AuthUserChangeRestaurant,
 )
@@ -19,13 +19,13 @@ router = APIRouter(
 )
 
 
-@router.post("/signup", response_model=AuthUserReponse, status_code=201)
+@router.post("/signup", response_model=Token, status_code=201)
 @limiter.limit("5/minute")
 def signup(request: Request, data: AuthUserCreate, db: Session = Depends(get_db)):
     return auth_service.signup(db, data)
 
 
-@router.post("/login", response_model=AuthUserReponse, status_code=201)
+@router.post("/login", response_model=Token, status_code=201)
 @limiter.limit("5/minute")
 def login(request: Request, data: AuthUserLogin, db: Session = Depends(get_db)):
     return auth_service.login(db, data)

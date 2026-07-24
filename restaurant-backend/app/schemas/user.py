@@ -25,7 +25,7 @@ class AuthUser(BaseModel):
         from_attributes = True
 
 
-class AuthUserReponse(BaseModel):
+class Token(BaseModel):
     # user: AuthUser
     access_token: str
     refresh_token: str

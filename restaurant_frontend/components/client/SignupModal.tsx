@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { UserPlus } from "lucide-react";
 import type { AuthUserResponse } from "@/lib/types";
 import { ApiError, signup } from "@/lib/api";
-import { setAuthUser } from "@/lib/auth-session";
+import { setAuthSession } from "@/lib/auth-session";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -82,7 +82,7 @@ export function SignupModal({
 
     setSubmitting(true);
     try {
-      const user = await signup({
+      const { user, access_token } = await signup({
         nom: trimmedNom,
         prenom: prenom.trim() || null,
         email: trimmedEmail || null,
@@ -90,7 +90,7 @@ export function SignupModal({
         password,
         restaurant_id: restaurantId,
       });
-      setAuthUser(user);
+      setAuthSession(user, access_token);
       onSuccess(user);
       onClose();
     } catch (err) {

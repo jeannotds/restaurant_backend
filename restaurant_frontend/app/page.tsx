@@ -2,9 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { UserRound } from "lucide-react";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, fetchCurrentUser } from "@/lib/api";
 import type { AuthUserResponse, Restaurant } from "@/lib/types";
-import { clearAuthUser, getAuthUser } from "@/lib/auth-session";
+import {
+  clearAuthUser,
+  getAccessToken,
+  getAuthUser,
+  setAuthUser,
+} from "@/lib/auth-session";
 import { clearClientSession } from "@/lib/client-session";
 import { ClientHeader } from "@/components/client/ClientHeader";
 import { RestaurantCard } from "@/components/client/RestaurantCard";
@@ -19,12 +24,30 @@ export default function HomePage() {
   const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
-    setAuthUserState(getAuthUser());
+    const token = getAccessToken();
+    const localUser = getAuthUser();
+
+    if (!token) {
+      setAuthUserState(null);
+      return;
+    }
+
+    if (localUser) setAuthUserState(localUser);
+
+    fetchCurrentUser()
+      .then((user) => {
+        setAuthUser(user);
+        setAuthUserState(user);
+      })
+      .catch(() => {
+        clearAuthUser();
+        setAuthUserState(null);
+      });
   }, []);
 
   useEffect(() => {
     api
-      .get<Restaurant[]>("/restaurants/")
+      .get<Restaurant[]>("/restaurants/", false)
       .then(setRestaurants)
       .catch((err) =>
         setError(

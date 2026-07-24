@@ -1,4 +1,5 @@
 import type {
+  AuthTokenResponse,
   AuthUserChangeRestaurant,
   AuthUserCreate,
   AuthUserLogin,
@@ -9,6 +10,7 @@ import type {
   TableJoinRequest,
   TableJoinResponse,
 } from "@/lib/types";
+import { clearAuthUser, getAccessToken } from "@/lib/auth-session";
 
 const REQUEST_TIMEOUT_MS = 20_000;
 
@@ -48,6 +50,7 @@ class ApiError extends Error {
 async function request<T>(
   path: string,
   options: RequestInit = {},
+  auth = true,
 ): Promise<T> {
   const url = `${resolveApiUrl()}${path}`;
   const controller = new AbortController();
@@ -55,19 +58,29 @@ async function request<T>(
   const isFormData =
     typeof FormData !== "undefined" && options.body instanceof FormData;
 
+  const headers: Record<string, string> = {
+    ...(options.body && !isFormData
+      ? { "Content-Type": "application/json" }
+      : {}),
+    ...(options.headers as Record<string, string> | undefined),
+  };
+
+  if (auth) {
+    const token = getAccessToken();
+    if (token) headers.Authorization = `Bearer ${token}`;
+  }
+
   try {
     const res = await fetch(url, {
       ...options,
       signal: controller.signal,
-      headers: {
-        ...(options.body && !isFormData
-          ? { "Content-Type": "application/json" }
-          : {}),
-        ...options.headers,
-      },
+      headers,
     });
 
     if (!res.ok) {
+      if (res.status === 401 && auth) {
+        clearAuthUser();
+      }
       let detail: unknown = res.statusText;
       try {
         const body = await res.json();
@@ -107,12 +120,13 @@ async function request<T>(
 }
 
 export const api = {
-  get: <T>(path: string) => request<T>(path),
-  post: <T>(path: string, body: unknown) =>
-    request<T>(path, { method: "POST", body: JSON.stringify(body) }),
-  put: <T>(path: string, body: unknown) =>
-    request<T>(path, { method: "PUT", body: JSON.stringify(body) }),
-  delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  get: <T>(path: string, auth = true) => request<T>(path, {}, auth),
+  post: <T>(path: string, body: unknown, auth = true) =>
+    request<T>(path, { method: "POST", body: JSON.stringify(body) }, auth),
+  put: <T>(path: string, body: unknown, auth = true) =>
+    request<T>(path, { method: "PUT", body: JSON.stringify(body) }, auth),
+  delete: <T>(path: string, auth = true) =>
+    request<T>(path, { method: "DELETE" }, auth),
   upload: <T>(path: string, file: File, fieldName = "file") => {
     const formData = new FormData();
     formData.append(fieldName, file);
@@ -187,20 +201,24 @@ export async function endOccupation(
 
 export async function signup(
   data: AuthUserCreate,
-): Promise<AuthUserResponse> {
-  return api.post<AuthUserResponse>("/auth/signup", data);
+): Promise<AuthTokenResponse> {
+  return api.post<AuthTokenResponse>("/auth/signup", data, false);
 }
 
 export async function login(
   data: AuthUserLogin,
-): Promise<AuthUserResponse> {
-  return api.post<AuthUserResponse>("/auth/login", data);
+): Promise<AuthTokenResponse> {
+  return api.post<AuthTokenResponse>("/auth/login", data, false);
 }
 
 export async function changeRestaurant(
   data: AuthUserChangeRestaurant,
 ): Promise<AuthUserResponse> {
   return api.put<AuthUserResponse>("/auth/change-restaurant", data);
+}
+
+export async function fetchCurrentUser(): Promise<AuthUserResponse> {
+  return api.get<AuthUserResponse>("/auth/me");
 }
 
 export { ApiError, resolveApiUrl as getApiUrl };

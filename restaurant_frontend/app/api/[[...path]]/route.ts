@@ -43,6 +43,8 @@ async function proxy(
   const headers = new Headers();
   const contentType = request.headers.get("content-type");
   if (contentType) headers.set("content-type", contentType);
+  const authorization = request.headers.get("authorization");
+  if (authorization) headers.set("authorization", authorization);
 
   const hasBody = request.method !== "GET" && request.method !== "HEAD";
   const body = hasBody ? await request.arrayBuffer() : undefined;

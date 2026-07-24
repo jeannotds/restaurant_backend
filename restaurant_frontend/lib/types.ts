@@ -128,6 +128,11 @@ export interface AuthUserResponse {
   is_active: boolean;
 }
 
+export interface AuthTokenResponse {
+  user: AuthUserResponse;
+  access_token: string;
+}
+
 export interface AuthUserLogin {
   email?: string | null;
   telephone?: string | null;
@@ -135,6 +140,5 @@ export interface AuthUserLogin {
 }
 
 export interface AuthUserChangeRestaurant {
-  user_id: string;
   restaurant_id: string;
 }

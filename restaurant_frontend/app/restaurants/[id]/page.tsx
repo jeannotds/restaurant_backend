@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { ArrowRightLeft, LogOut, MapPin, Phone, UserRound } from "lucide-react";
-import { api, changeRestaurant, endOccupation } from "@/lib/api";
+import { api, changeRestaurant, endOccupation, fetchCurrentUser } from "@/lib/api";
 import type {
   AuthUserResponse,
   Category,
@@ -22,6 +22,7 @@ import {
 } from "@/lib/client-session";
 import {
   clearAuthUser,
+  getAccessToken,
   getAuthUser,
   getAuthUserForRestaurant,
   setAuthUser,
@@ -119,6 +120,7 @@ export default function RestaurantClientPage() {
 
   useEffect(() => {
     const stored = getSessionForRestaurant(restaurantId);
+    const token = getAccessToken();
     const sessionUser = getAuthUser();
     const restaurantUser = getAuthUserForRestaurant(restaurantId);
 
@@ -137,6 +139,22 @@ export default function RestaurantClientPage() {
     setLoggedInUser(sessionUser);
     setAuthUserState(restaurantUser);
     setSwitchError("");
+
+    if (!token) return;
+
+    fetchCurrentUser()
+      .then((user) => {
+        setAuthUser(user);
+        setLoggedInUser(user);
+        setAuthUserState(
+          user.restaurant_id === restaurantId ? user : null,
+        );
+      })
+      .catch(() => {
+        clearAuthUser();
+        setLoggedInUser(null);
+        setAuthUserState(null);
+      });
   }, [restaurantId]);
 
   useEffect(() => {
@@ -178,7 +196,6 @@ export default function RestaurantClientPage() {
       setAuthUserState(null);
       try {
         const switched = await changeRestaurant({
-          user_id: user.id,
           restaurant_id: restaurantId,
         });
         setAuthUser(switched);
@@ -200,7 +217,6 @@ export default function RestaurantClientPage() {
     if (!user.restaurant_id) {
       try {
         const switched = await changeRestaurant({
-          user_id: user.id,
           restaurant_id: restaurantId,
         });
         setAuthUser(switched);
@@ -230,7 +246,6 @@ export default function RestaurantClientPage() {
     setSwitchError("");
     try {
       const user = await changeRestaurant({
-        user_id: loggedInUser.id,
         restaurant_id: restaurantId,
       });
       setAuthUser(user);

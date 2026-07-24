@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { LogIn } from "lucide-react";
 import type { AuthUserResponse } from "@/lib/types";
 import { ApiError, login } from "@/lib/api";
-import { setAuthUser } from "@/lib/auth-session";
+import { setAuthSession } from "@/lib/auth-session";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Modal } from "@/components/ui/Modal";
@@ -71,12 +71,12 @@ export function LoginModal({
 
     setSubmitting(true);
     try {
-      const user = await login({
+      const { user, access_token } = await login({
         email: trimmedEmail || null,
         telephone: trimmedTelephone || null,
         password,
       });
-      setAuthUser(user);
+      setAuthSession(user, access_token);
       onSuccess(user);
       onClose();
     } catch (err) {

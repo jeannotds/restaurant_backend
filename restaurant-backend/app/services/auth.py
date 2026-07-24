@@ -6,8 +6,9 @@ from app.core.security import hash_password, verify_password
 from sqlalchemy import or_
 from fastapi import HTTPException, Depends
 from app.schemas.user import AuthUserLogin
-from app.core.jwt import create_access_token, create_refresh_token, decode_access_token, decode_refresh_token
+from app.core.jwt import create_access_token, create_refresh_token, decode_access_token, decode_refresh_token, decode_token
 from app.dependencies.auth import get_current_user
+from app.schemas.user import RefreshTokenRequest
 
 
 def signup(db: Session, data: AuthUserCreate):
@@ -126,3 +127,30 @@ def change_restaurant(db: Session, data: AuthUserChangeRestaurant, current_user)
     db.commit()
     db.refresh(user)
     return user
+
+
+def refresh_token(db: Session, data: RefreshTokenRequest):
+
+    payload = decode_refresh_token(data.refresh_token)
+
+    if payload is None:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+    user_id = payload.get("sub")
+
+    if user_id is None:
+        raise HTTPException(status_code=401, detail="Token invalide")
+
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+
+    new_access_token = create_access_token(
+        {"sub": str(user.id), "email": user.email, "telephone": user.telephone}
+    )
+
+    return {
+        "refresh_token": new_access_token,
+        "token_type": "bearer"
+    }

@@ -4,6 +4,8 @@ from app.schemas.user import (
     Token,
     AuthUserLogin,
     AuthUserChangeRestaurant,
+    RefreshTokenRequest,
+    RefreshTokenResponse,
 )
 from fastapi import APIRouter, Depends, Request
 from app.services import auth as auth_service
@@ -44,3 +46,9 @@ def change_restaurant(
 @router.get("/me", response_model=AuthUser)
 def me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/refresh-token", response_model=RefreshTokenResponse, status_code=200)
+@limiter.limit("5/minute")
+def refresh_token(request: Request, data: RefreshTokenRequest, db: Session = Depends(get_db)):
+    return auth_service.refresh_token(db, data)

@@ -23,6 +23,13 @@ class AuthUser(BaseModel):
 
     class Config:
         from_attributes = True
+    
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
+class RefreshTokenResponse(BaseModel):
+    refresh_token: str
+    token_type: str
 
 
 class Token(BaseModel):

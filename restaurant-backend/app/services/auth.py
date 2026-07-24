@@ -67,6 +67,7 @@ def signup(db: Session, data: AuthUserCreate):
         "user": user,
         "access_token": access_token,
         "refresh_token": refresh_token,
+        "token_type": "bearer"
     }
 
 
@@ -106,6 +107,7 @@ def login(db: Session, data: AuthUserLogin):
         "user": user,
         "access_token": access_token,
         "refresh_token": refresh_token,
+        "token_type": "bearer"
     }
 
 

@@ -29,7 +29,7 @@ class AuthUserReponse(BaseModel):
     user: AuthUser
     access_token: str
     refresh_token: str
-
+    token_type: str
 
 class AuthUserLogin(BaseModel):
     email: Optional[str] = None

@@ -60,7 +60,7 @@ def signup(db: Session, data: AuthUserCreate):
         {"sub": str(user.id), "email": user.email, "telephone": user.telephone})
 
     refresh_token = create_refresh_token(
-        {"sub": str(user.id), "email": user.email, "telephone": user.telephone}
+        {"sub": str(user.id)}
     )
 
     return {
@@ -97,7 +97,7 @@ def login(db: Session, data: AuthUserLogin):
         {"sub": str(user.id), "email": user.email, "telephone": user.telephone})
 
     refresh_token = create_refresh_token(
-        {"sub": str(user.id), "email": user.email, "telephone": user.telephone}
+        {"sub": str(user.id)}
     )
 
     db.commit()

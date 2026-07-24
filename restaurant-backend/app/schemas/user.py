@@ -28,6 +28,7 @@ class AuthUser(BaseModel):
 class AuthUserReponse(BaseModel):
     user: AuthUser
     access_token: str
+    refresh_token: str
 
 
 class AuthUserLogin(BaseModel):

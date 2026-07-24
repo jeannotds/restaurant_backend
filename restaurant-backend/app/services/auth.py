@@ -6,7 +6,7 @@ from app.core.security import hash_password, verify_password
 from sqlalchemy import or_
 from fastapi import HTTPException, Depends
 from app.schemas.user import AuthUserLogin
-from app.core.jwt import create_access_token, decode_access_token
+from app.core.jwt import create_access_token, create_refresh_token, decode_access_token
 from app.dependencies.auth import get_current_user
 
 
@@ -56,12 +56,17 @@ def signup(db: Session, data: AuthUserCreate):
     db.commit()
     db.refresh(user)
 
-    token = create_access_token(
+    access_token = create_access_token(
         {"sub": str(user.id), "email": user.email, "telephone": user.telephone})
+
+    refresh_token = create_refresh_token(
+        {"sub": str(user.id), "email": user.email, "telephone": user.telephone}
+    )
 
     return {
         "user": user,
-        "access_token": token,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
     }
 
 
@@ -87,15 +92,20 @@ def login(db: Session, data: AuthUserLogin):
         raise HTTPException(
             status_code=400, detail="Password or email/telephone incorrect")
 
-    token = create_access_token(
+    access_token = create_access_token(
         {"sub": str(user.id), "email": user.email, "telephone": user.telephone})
+
+    refresh_token = create_refresh_token(
+        {"sub": str(user.id), "email": user.email, "telephone": user.telephone}
+    )
 
     db.commit()
     db.refresh(user)
 
     return {
         "user": user,
-        "access_token": token,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
     }
 
 

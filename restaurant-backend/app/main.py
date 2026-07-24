@@ -26,9 +26,10 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://192.168.1.121:3000",
+        # "http://localhost:3000",
+        # "http://127.0.0.1:3000",
+        # "http://192.168.1.121:3000",
+        "*",
     ],
     allow_origin_regex=r"https?://(localhost|127\.0\.0\.1|192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})(:\d+)?",
     allow_credentials=True,
@@ -44,6 +45,8 @@ app.include_router(commande.router)
 app.include_router(auth.router)
 
 # Créer les tables de base de données au démarrage¶
+
+
 @app.on_event("startup")
 def on_startup():
     Base.metadata.create_all(bind=engine)
@@ -54,6 +57,7 @@ def on_startup():
                 "ADD COLUMN IF NOT EXISTS public_id VARCHAR(255)"
             )
         )
+
 
 @app.get("/")
 async def root():

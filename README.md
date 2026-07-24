@@ -92,3 +92,6 @@ ou
 which python
 
 dans le fichier "site-packages/" dans env/lib/...
+
+<!-- Rating for timing request -->
+pip install slowapi
